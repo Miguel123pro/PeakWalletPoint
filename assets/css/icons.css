@@ -1,0 +1,691 @@
+/* Professional Financial Icons for FinancePro */
+
+/* Base icon styles */
+.icon {
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.icon svg {
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+}
+
+/* Navigation Icons */
+.nav-icon.dashboard-icon::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.nav-icon.transactions-icon::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.nav-icon.goals-icon::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Ccircle cx='12' cy='12' r='10' stroke='currentColor' stroke-width='2'/%3E%3Ccircle cx='12' cy='12' r='6' stroke='currentColor' stroke-width='2'/%3E%3Ccircle cx='12' cy='12' r='2' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.nav-icon.routines-icon::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M9 11H7v6h2v-6zm4 0h-2v6h2v-6zm4 0h-2v6h2v-6zm2.5-9H19V1h-2v1H7V1H5v1H3.5C2.66 2 2 2.66 2 3.5v16C2 20.34 2.66 21 3.5 21h17c.84 0 1.5-.66 1.5-1.5v-16C22 2.66 21.34 2 20.5 2z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.nav-icon.reports-icon::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+/* Metric Card Icons */
+.metric-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    background: var(--surface);
+    opacity: 0.8;
+}
+
+.metric-icon::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    display: block;
+}
+
+.balance-icon::before {
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+}
+
+.income-icon::before {
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M7 14l5-5 5 5z' fill='currentColor'/%3E%3Cpath d='M12 2l5.196 5.196a1 1 0 01.707 1.707L12 14.807 6.097 8.903a1 1 0 01.707-1.707L12 2z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+}
+
+.expense-icon::before {
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M17 10l-5 5-5-5z' fill='currentColor'/%3E%3Cpath d='M12 22l-5.196-5.196a1 1 0 01-.707-1.707L12 9.193l5.903 5.904a1 1 0 01-.707 1.707L12 22z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+}
+
+.savings-icon::before {
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3c0 2.08 1.69 3.84 3.89 3.95C7.92 13.95 7 13.02 7 12h-1zm1.89 6.95C9.69 16.84 11 15.08 11 13v-3h-1c-1.02 0-1.95.92-1.95.95z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+}
+
+/* Activity Icons */
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: var(--surface);
+    position: relative;
+}
+
+.activity-icon.income {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--accent-green);
+}
+
+.activity-icon.expense {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--accent-red);
+}
+
+.activity-icon .icon {
+    width: 20px;
+    height: 20px;
+}
+
+.activity-icon .icon.arrow-up::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M7 14l5-5 5 5z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.activity-icon .icon.arrow-down::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M7 10l5 5 5-5z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+/* Goal Type Icons */
+.goal-type-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    flex-shrink: 0;
+    font-size: 18px;
+}
+
+/* Transaction Form Icons */
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: var(--surface);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 200ms ease;
+    color: var(--text-secondary);
+    font-size: 16px;
+}
+
+.btn-icon:hover {
+    background: var(--surface-hover);
+    color: var(--text-primary);
+    transform: scale(1.05);
+}
+
+.btn-icon.delete-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--accent-red);
+}
+
+/* Theme Icon */
+.theme-icon::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+/* Button Icons */
+.add-icon::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+/* Utility Icons */
+.icon-chart::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.icon-delete::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.icon-edit::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+/* Category Icons for Goals */
+.goal-savings::before {
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+}
+
+.goal-debt::before {
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+}
+
+.goal-purchase::before {
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+}
+
+.goal-emergency::before {
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M12 5.99L19.53 19H4.47L12 5.99M12 2L1 21h22L12 2zm1 14h-2v2h2v-2zm0-6h-2v4h2v-4z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+}
+
+.goal-vacation::before {
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+}
+
+.goal-home::before {
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+}
+
+.stat-icon.goals-icon::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Ccircle cx='12' cy='12' r='10' stroke='currentColor' stroke-width='2'/%3E%3Ccircle cx='12' cy='12' r='6' stroke='currentColor' stroke-width='2'/%3E%3Ccircle cx='12' cy='12' r='2' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.stat-icon.completed-icon::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.stat-icon.target-amount-icon::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.stat-icon.progress-icon::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M13 2L3 14h9l-1 8 10-12h-9l1-8z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+/* Action Icons */
+.close-icon::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M18 6L6 18M6 6l12 12' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.save-icon::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpolyline points='17,21 17,13 7,13 7,21' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpolyline points='7,3 7,8 15,8' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+/* Insight Icons */
+.success-icon::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.warning-icon::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.clock-icon::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Ccircle cx='12' cy='12' r='10' stroke='currentColor' stroke-width='2'/%3E%3Cpolyline points='12,6 12,12 16,14' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.trend-up-icon::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpolyline points='23,6 13.5,15.5 8.5,10.5 1,18' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpolyline points='17,6 23,6 23,12' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.lightbulb-icon::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M9 21h6M12 3a6 6 0 00-6 6c0 1 .2 2 .6 2.8L9 15h6l2.4-3.2c.4-.8.6-1.8.6-2.8a6 6 0 00-6-6z' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+/* Goal Type Icons - Extended */
+.goal-retirement::before {
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpolyline points='14,2 14,8 20,8' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cline x1='16' y1='13' x2='8' y2='13' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cline x1='16' y1='17' x2='8' y2='17' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpolyline points='10,9 9,9 8,9' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+}
+
+.goal-education::before {
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M22 10v6M2 10l10-5 10 5-10 5z' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M6 12v5c3 3 9 3 12 0v-5' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+}
+
+.goal-investment::before {
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpolyline points='22,12 18,12 15,21 9,3 6,12 2,12' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+}
+
+/* Icon sizes for different contexts */
+.stat-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    background: var(--surface);
+    opacity: 0.8;
+}
+
+.stat-icon::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    display: block;
+}
+
+/* ===== ADDITIONAL ICONS FOR ROUTINES & REPORTS ===== */
+
+/* Icon fixes for Routines & Reports components */
+
+/* ===== REPORTS ICONS ===== */
+
+/* Report type icons */
+.report-icon.weekly-icon::before {
+    content: '';
+    width: 24px;
+    height: 24px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2' stroke='currentColor' stroke-width='2'/%3E%3Cline x1='16' y1='2' x2='16' y2='6' stroke='currentColor' stroke-width='2'/%3E%3Cline x1='8' y1='2' x2='8' y2='6' stroke='currentColor' stroke-width='2'/%3E%3Cline x1='3' y1='10' x2='21' y2='10' stroke='currentColor' stroke-width='2'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.report-icon.monthly-icon::before {
+    content: '';
+    width: 24px;
+    height: 24px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.report-icon.goals-report-icon::before {
+    content: '';
+    width: 24px;
+    height: 24px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Ccircle cx='12' cy='12' r='10' stroke='currentColor' stroke-width='2'/%3E%3Ccircle cx='12' cy='12' r='6' stroke='currentColor' stroke-width='2'/%3E%3Ccircle cx='12' cy='12' r='2' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.report-icon.custom-icon::before {
+    content: '';
+    width: 24px;
+    height: 24px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z' stroke='currentColor' stroke-width='2' fill='none'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+/* Export icons */
+.export-icon.json-icon::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z' stroke='currentColor' stroke-width='2'/%3E%3Cpolyline points='14,2 14,8 20,8' stroke='currentColor' stroke-width='2'/%3E%3Cline x1='16' y1='13' x2='8' y2='13' stroke='currentColor' stroke-width='2'/%3E%3Cline x1='16' y1='17' x2='8' y2='17' stroke='currentColor' stroke-width='2'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.export-icon.csv-icon::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z' stroke='currentColor' stroke-width='2'/%3E%3Cpolyline points='14,2 14,8 20,8' stroke='currentColor' stroke-width='2'/%3E%3Cpath d='M10 12h4M10 16h4M6 12h.01M6 16h.01' stroke='currentColor' stroke-width='2'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.export-icon.pdf-icon::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z' stroke='currentColor' stroke-width='2'/%3E%3Cpolyline points='14,2 14,8 20,8' stroke='currentColor' stroke-width='2'/%3E%3Cpath d='M9 12v5h1.5a1.5 1.5 0 000-3H9M15 12v5M13 14h2' stroke='currentColor' stroke-width='2'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+/* Button icons */
+.download-icon::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.export-icon::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z' stroke='currentColor' stroke-width='2'/%3E%3Cpolyline points='14,2 14,8 20,8' stroke='currentColor' stroke-width='2'/%3E%3Cpath d='M12 18v-6M9 15l3 3 3-3' stroke='currentColor' stroke-width='2'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+/* ===== ROUTINES ICONS ===== */
+
+/* Stat icons for routines */
+.active-routines-icon::before {
+    content: '';
+    width: 24px;
+    height: 24px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M9 11H7v6h2v-6zm4 0h-2v6h2v-6zm4 0h-2v6h2v-6zm2.5-9H19V1h-2v1H7V1H5v1H3.5C2.66 2 2 2.66 2 3.5v16C2 20.34 2.66 21 3.5 21h17c.84 0 1.5-.66 1.5-1.5v-16C22 2.66 21.34 2 20.5 2z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.pending-icon::before {
+    content: '';
+    width: 24px;
+    height: 24px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Ccircle cx='12' cy='12' r='10' stroke='currentColor' stroke-width='2'/%3E%3Cpolyline points='12,6 12,12 16,14' stroke='currentColor' stroke-width='2'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.monthly-impact-icon::before {
+    content: '';
+    width: 24px;
+    height: 24px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+/* Routine action icons */
+.play-icon::before {
+    content: '';
+    width: 14px;
+    height: 14px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpolygon points='5,3 19,12 5,21' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.pause-icon::before {
+    content: '';
+    width: 14px;
+    height: 14px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Crect x='6' y='4' width='4' height='16' fill='currentColor'/%3E%3Crect x='14' y='4' width='4' height='16' fill='currentColor'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.edit-icon::before {
+    content: '';
+    width: 14px;
+    height: 14px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z' stroke='currentColor' stroke-width='2'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.trash-icon::before {
+    content: '';
+    width: 14px;
+    height: 14px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpolyline points='3,6 5,6 21,6' stroke='currentColor' stroke-width='2'/%3E%3Cpath d='M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2' stroke='currentColor' stroke-width='2'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+.plus-icon::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cline x1='12' y1='5' x2='12' y2='19' stroke='currentColor' stroke-width='2'/%3E%3Cline x1='5' y1='12' x2='19' y2='12' stroke='currentColor' stroke-width='2'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+/* Empty state icons */
+.routines-empty-icon::before {
+    content: '';
+    width: 32px;
+    height: 32px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2' stroke='currentColor' stroke-width='2'/%3E%3Cline x1='16' y1='2' x2='16' y2='6' stroke='currentColor' stroke-width='2'/%3E%3Cline x1='8' y1='2' x2='8' y2='6' stroke='currentColor' stroke-width='2'/%3E%3Cline x1='3' y1='10' x2='21' y2='10' stroke='currentColor' stroke-width='2'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+    opacity: 0.4;
+}
+
+/* History icons */
+.history-icon.weekly-icon::before,
+.history-icon.monthly-icon::before,
+.history-icon.goals-icon::before,
+.history-icon.custom-icon::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z' stroke='currentColor' stroke-width='2'/%3E%3Cpolyline points='14,2 14,8 20,8' stroke='currentColor' stroke-width='2'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    display: block;
+}
+
+/* Fix for button icons spacing */
+.btn-icon {
+    margin-right: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Ensure icons are visible */
+.report-icon,
+.export-icon,
+.stat-icon {
+    color: white;
+    opacity: 1;
+}
+
+.stat-icon {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+/* Make sure stat icons in routines/reports are visible */
+.routines-stats .stat-icon,
+.quick-stats-grid .stat-icon {
+    background: var(--gradient-primary);
+    color: white;
+    opacity: 1;
+}
+
+.routines-stats .stat-icon::before,
+.quick-stats-grid .stat-icon::before {
+    background: white;
+}
+
+/* ... (rest of the code from my previous artifact) ... */
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .nav-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .metric-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .activity-icon {
+        width: 36px;
+        height: 36px;
+    }
+}

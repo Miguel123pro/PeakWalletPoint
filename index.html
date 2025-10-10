@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinancePro - Professional Finance Management</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="assets/css/themes.css">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <link rel="stylesheet" href="assets/css/sidebar.css">
+    <link rel="stylesheet" href="assets/css/icons.css">
+    <link rel="stylesheet" href="assets/css/components-enhanced.css">
+
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body class="dark-theme">
+    <!-- Loading Screen -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <p>Loading FinancePro...</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="app-container" id="appContainer">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon"></div>
+                    <h1>FinancePro</h1>
+                </div>
+                <p class="tagline">Professional Finance Management</p>
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item active" data-tab="dashboard">
+                    <div class="nav-icon dashboard-icon"></div>
+                    <span>Dashboard</span>
+                </li>
+                <li class="nav-item" data-tab="transactions">
+                    <div class="nav-icon transactions-icon"></div>
+                    <span>Transactions</span>
+                </li>
+                <li class="nav-item" data-tab="goals">
+                    <div class="nav-icon goals-icon"></div>
+                    <span>Goals</span>
+                </li>
+                <li class="nav-item" data-tab="routines">
+                    <div class="nav-icon routines-icon"></div>
+                    <span>Routines</span>
+                </li>
+                <li class="nav-item" data-tab="reports">
+                    <div class="nav-icon reports-icon"></div>
+                    <span>Reports</span>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="theme-toggle">
+                    <button id="themeToggle" class="btn-icon">
+                        <div class="theme-icon"></div>
+                    </button>
+                </div>
+                <p class="version">v2.0.0</p>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-left">
+                    <h2 id="pageTitle">Dashboard</h2>
+                    <p class="page-subtitle" id="pageSubtitle">Financial Overview</p>
+                </div>
+                <div class="header-right">
+                    <div class="header-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Total Balance</span>
+                            <span class="stat-value" id="headerBalance">0.00$</span>
+                        </div>
+                    </div>
+                    <button class="btn-primary" id="quickAddBtn">
+                        <span class="btn-icon add-icon"></span>
+                        Quick Add
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content Sections -->
+            <div class="content-wrapper">
+                <!-- Dashboard Tab -->
+                <section id="dashboard" class="tab-content active">
+                    <div class="dashboard-grid">
+                        <!-- Key Metrics -->
+                        <div class="metrics-row">
+                            <div class="metric-card balance">
+                                <div class="metric-header">
+                                    <h3>Account Balance</h3>
+                                    <div class="metric-icon balance-icon"></div>
+                                </div>
+                                <div class="metric-value" id="totalBalance">0.00$</div>
+                                <div class="metric-change positive" id="balanceChange">+0.00%</div>
+                            </div>
+
+                            <div class="metric-card income">
+                                <div class="metric-header">
+                                    <h3>Monthly Income</h3>
+                                    <div class="metric-icon income-icon"></div>
+                                </div>
+                                <div class="metric-value" id="monthlyIncome">0.00$</div>
+                                <div class="metric-change positive" id="incomeChange">+0.00%</div>
+                            </div>
+
+                            <div class="metric-card expense">
+                                <div class="metric-header">
+                                    <h3>Monthly Expenses</h3>
+                                    <div class="metric-icon expense-icon"></div>
+                                </div>
+                                <div class="metric-value" id="monthlyExpenses">0.00$</div>
+                                <div class="metric-change negative" id="expenseChange">+0.00%</div>
+                            </div>
+
+                            <div class="metric-card savings">
+                                <div class="metric-header">
+                                    <h3>Monthly Savings</h3>
+                                    <div class="metric-icon savings-icon"></div>
+                                </div>
+                                <div class="metric-value" id="monthlySavings">0.00$</div>
+                                <div class="metric-change positive" id="savingsChange">+0.00%</div>
+                            </div>
+                        </div>
+
+                        <!-- Charts Row -->
+                        <div class="charts-row">
+                            <div class="chart-card">
+                                <div class="card-header">
+                                    <h3>Spending Categories</h3>
+                                    <div class="card-actions">
+                                        <select class="period-selector" id="categoryPeriod">
+                                            <option value="month">This Month</option>
+                                            <option value="quarter">This Quarter</option>
+                                            <option value="year">This Year</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="categoryChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="chart-card">
+                                <div class="card-header">
+                                    <h3>Financial Trend</h3>
+                                    <div class="card-actions">
+                                        <select class="period-selector" id="trendPeriod">
+                                            <option value="6months">6 Months</option>
+                                            <option value="year">12 Months</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="trendChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Activity -->
+                        <div class="activity-section">
+                            <div class="section-header">
+                                <h3>Recent Activity</h3>
+                                <a href="#" class="view-all-link">View All</a>
+                            </div>
+                            <div class="activity-list" id="recentActivity">
+                                <!-- Dynamic content -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Other tabs will be loaded dynamically -->
+                <section id="transactions" class="tab-content">
+                    <!-- Transaction management interface -->
+                </section>
+
+                <section id="goals" class="tab-content">
+                    <!-- Goals management interface -->
+                </section>
+
+                <section id="routines" class="tab-content">
+                    <!-- Routines management interface -->
+                </section>
+
+                <section id="reports" class="tab-content">
+                    <!-- Reports and analytics interface -->
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals and Overlays -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="quickAddModal">
+            <div class="modal-header">
+                <h3>Quick Add Transaction</h3>
+                <button class="modal-close" id="closeModal">×</button>
+            </div>
+            <div class="modal-content">
+                <!-- Quick add form -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <!-- JavaScript Modules -->
+    <script src="assets/js/config/constants.js"></script>
+    <script src="assets/js/utils/storage.js"></script>
+    <script src="assets/js/utils/helpers.js"></script>
+    <script src="assets/js/utils/charts.js"></script>
+    <script src="assets/js/utils/pdf-generator.js"></script>
+    <script src="assets/js/components/dashboard.js"></script>
+    <script src="assets/js/components/transactions.js"></script>
+    <script src="assets/js/components/goals.js"></script>
+    <script src="assets/js/components/routines.js"></script>
+    <script src="assets/js/components/reports.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/sidebar.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,237 @@
+/* Final Sidebar Fix - Add this to override existing styles */
+
+/* Force correct sidebar header layout */
+.sidebar-header {
+    padding: 20px 16px !important;
+    border-bottom: 1px solid var(--border-subtle) !important;
+    position: relative !important;
+    min-height: 72px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+}
+
+/* Fixed toggle button - positioned on the border */
+.sidebar-toggle {
+    position: absolute !important;
+    top: 20px !important;
+    right: -12px !important;
+    width: 24px !important;
+    height: 24px !important;
+    background: var(--bg-secondary) !important;
+    border: 2px solid var(--border-default) !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 200ms ease !important;
+    z-index: 100 !important;
+    color: var(--text-secondary) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+    transform: none !important;
+}
+
+.sidebar-toggle:hover {
+    background: var(--accent-blue) !important;
+    border-color: var(--accent-blue) !important;
+    color: white !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+}
+
+.sidebar-toggle::before {
+    content: "‹" !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    transition: transform 300ms ease !important;
+    line-height: 1 !important;
+}
+
+.sidebar-expanded .sidebar-toggle::before {
+    transform: rotate(180deg) !important;
+}
+
+/* Ensure proper logo layout */
+.logo {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    margin-bottom: 6px !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.logo h1 {
+    font-size: 1.3rem !important;
+    font-weight: 700 !important;
+    color: var(--text-primary) !important;
+    white-space: nowrap !important;
+    opacity: 0 !important;
+    transform: translateX(-20px) !important;
+    transition: all 300ms ease !important;
+}
+
+.sidebar-expanded .logo h1 {
+    opacity: 1 !important;
+    transform: translateX(0) !important;
+}
+
+.tagline {
+    font-size: 0.75rem !important;
+    color: var(--text-secondary) !important;
+    font-weight: 400 !important;
+    white-space: nowrap !important;
+    opacity: 0 !important;
+    transform: translateX(-20px) !important;
+    transition: all 300ms ease 100ms !important;
+    margin-left: 52px !important;
+}
+
+.sidebar-expanded .tagline {
+    opacity: 1 !important;
+    transform: translateX(0) !important;
+}
+
+/* Navigation improvements */
+.nav-item {
+    margin: 0 12px 6px !important;
+    border-radius: 12px !important;
+    cursor: pointer !important;
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+    padding: 14px 16px !important;
+    color: var(--text-secondary) !important;
+    font-weight: 500 !important;
+    font-size: 0.9rem !important;
+    transition: all 200ms ease !important;
+}
+
+.nav-item:hover {
+    color: var(--text-primary) !important;
+    background: var(--surface-hover) !important;
+    transform: translateX(2px) !important;
+}
+
+.nav-item.active {
+    color: white !important;
+    background: var(--gradient-primary) !important;
+    box-shadow: var(--shadow-glow) !important;
+    transform: none !important;
+}
+
+.nav-item.active::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    width: 3px !important;
+    height: 100% !important;
+    background: white !important;
+    border-radius: 2px 0 0 2px !important;
+}
+
+/* Better icon positioning */
+.nav-icon {
+    width: 20px !important;
+    height: 20px !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 14px !important;
+    opacity: 0.8 !important;
+}
+
+.nav-item.active .nav-icon {
+    opacity: 1 !important;
+}
+
+/* Text visibility */
+.nav-item span {
+    opacity: 0 !important;
+    transform: translateX(-10px) !important;
+    transition: all 300ms ease !important;
+    white-space: nowrap !important;
+    font-weight: 500 !important;
+}
+
+.sidebar-expanded .nav-item span {
+    opacity: 1 !important;
+    transform: translateX(0) !important;
+}
+
+/* Collapsed state adjustments */
+.app-container:not(.sidebar-expanded) .nav-item {
+    justify-content: center !important;
+    padding: 14px 8px !important;
+}
+
+.app-container:not(.sidebar-expanded) .nav-item span {
+    display: none !important;
+}
+
+.app-container:not(.sidebar-expanded) .nav-item:hover {
+    transform: none !important;
+    background: var(--surface-hover) !important;
+}
+
+/* Tooltips for collapsed state */
+.nav-item::before {
+    content: attr(data-tooltip) !important;
+    position: absolute !important;
+    left: calc(100% + 16px) !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    background: var(--surface) !important;
+    color: var(--text-primary) !important;
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+    white-space: nowrap !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: all 200ms ease !important;
+    z-index: 1000 !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+    border: 1px solid var(--border-default) !important;
+    pointer-events: none !important;
+}
+
+.nav-item:hover::before {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(-50%) translateX(6px) !important;
+}
+
+.sidebar-expanded .nav-item::before {
+    display: none !important;
+}
+
+/* Make sure sidebar doesn't interfere with main content */
+.main-content {
+    background: var(--bg-primary) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 100vh !important;
+    overflow-x: hidden !important;
+}
+
+/* Responsive fixes */
+@media (max-width: 768px) {
+    .sidebar-toggle {
+        display: none !important;
+    }
+
+    .sidebar {
+        position: fixed !important;
+        left: -100% !important;
+        top: 0 !important;
+        z-index: 1000 !important;
+        width: 280px !important;
+        transition: left 300ms ease !important;
+    }
+}
