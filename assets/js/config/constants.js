@@ -20,10 +20,10 @@ const CONFIG = {
 
     // Currency Settings
     CURRENCY: {
-        SYMBOL: '$',
-        CODE: 'USD',
+        SYMBOL: '€',
+        CODE: 'EUR',
         DECIMALS: 2,
-        LOCALE: 'en-US'
+        LOCALE: 'pt-PT'
     },
 
     // Date Settings

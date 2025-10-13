@@ -92,8 +92,15 @@ body {
     min-height: 100vh;
     display: grid;
     grid-template-columns: var(--sidebar-collapsed) 1fr;
-    transition: grid-template-columns var(--transition-normal);
     background: var(--bg-primary);
+    transition: grid-template-columns 400ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+
+}
+
+.logo h1,
+.tagline,
+.nav-text {
+    transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .app-container.sidebar-expanded {
@@ -107,10 +114,15 @@ body {
     border-right: 1px solid var(--border-subtle);
     position: relative;
     height: 100vh;
-    overflow: hidden;
     display: flex;
     flex-direction: column;
     backdrop-filter: blur(20px);
+    overflow: hidden !important;
+    transition: width 400ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.sidebar * {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .sidebar::before {
@@ -125,16 +137,22 @@ body {
 }
 
 .sidebar-header {
-    padding: var(--space-6) var(--space-4);
-    border-bottom: 1px solid var(--border-subtle);
-    position: relative;
+    padding: 24px 16px !important;
+    border-bottom: 1px solid var(--border-subtle) !important;
+    position: relative !important;
+    min-height: 80px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
 }
 
 .logo {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    margin-bottom: var(--space-2);
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    margin-bottom: 8px !important;
+    position: relative !important;
+    z-index: 1 !important;
 }
 
 .logo-icon {
@@ -147,7 +165,8 @@ body {
     justify-content: center;
     position: relative;
     box-shadow: var(--shadow-glow);
-    flex-shrink: 0;
+    flex-shrink: 0 !important;
+
 }
 
 .logo-icon::after {
@@ -235,7 +254,7 @@ body {
     border-radius: var(--border-radius);
     cursor: pointer;
     position: relative;
-    overflow: hidden;
+
 }
 
 .nav-item-content {
@@ -332,47 +351,76 @@ body {
 /* ===== SIDEBAR FOOTER ===== */
 
 .sidebar-footer {
-    padding: var(--space-4);
-    border-top: 1px solid var(--border-subtle);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: var(--space-4) !important;
+    border-top: 1px solid var(--border-subtle) !important;
+    margin-top: auto !important;
+    width: 100% !important;
+    gap: 0 !important;
+}
+
+.sidebar-footer * {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
 }
 
 .sidebar-expanded .sidebar-footer {
-    justify-content: space-between;
+    justify-content: space-between !important;
+    padding-left: var(--space-6) !important;
+    padding-right: var(--space-6) !important;
+}
+
+.theme-toggle {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin: 0 auto !important;
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
 }
 
 .theme-toggle .btn-icon {
-    width: 36px;
-    height: 36px;
-    background: var(--surface);
-    border: 1px solid var(--border-default);
-    border-radius: var(--border-radius);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    color: var(--text-secondary);
+    width: 40px !important;
+    height: 40px !important;
+    background: var(--surface) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+    color: var(--text-secondary) !important;
+    font-size: 18px !important;
+    margin: 0 !important;
 }
 
 .theme-toggle .btn-icon:hover {
-    background: var(--surface-hover);
-    color: var(--text-primary);
-    transform: scale(1.05);
+    background: var(--surface-hover) !important;
+    color: var(--accent-blue) !important;
+    transform: scale(1.08) rotate(15deg) !important;
+    border-color: var(--border-default) !important;
 }
 
 .version {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    font-weight: 500;
-    opacity: 0;
-    transition: opacity var(--transition-normal);
+    font-size: 0.75rem !important;
+    color: var(--text-muted) !important;
+    font-weight: 500 !important;
+    opacity: 0 !important;
+    max-width: 0 !important;
+    overflow: hidden !important;
+    transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+    white-space: nowrap !important;
 }
 
 .sidebar-expanded .version {
-    opacity: 1;
+    opacity: 1 !important;
+    max-width: 100px !important;
+    margin-left: var(--space-4) !important;
 }
 
 /* ===== MAIN CONTENT AREA ===== */

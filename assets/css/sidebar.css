@@ -107,6 +107,8 @@
     font-weight: 500 !important;
     font-size: 0.9rem !important;
     transition: all 200ms ease !important;
+    overflow: hidden;
+
 }
 
 .nav-item:hover {
@@ -178,6 +180,10 @@
     background: var(--surface-hover) !important;
 }
 
+.app-container:not(.sidebar-expanded) .sidebar-footer {
+    justify-content: center !important;
+}
+
 /* Tooltips for collapsed state */
 .nav-item::before {
     content: attr(data-tooltip) !important;
@@ -233,5 +239,7 @@
         z-index: 1000 !important;
         width: 280px !important;
         transition: left 300ms ease !important;
+        overflow: hidden;
+
     }
 }
