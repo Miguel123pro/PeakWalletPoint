@@ -25,7 +25,7 @@ class Dashboard {
         if (typeof Helpers !== 'undefined' && Helpers.formatCurrency) {
             return Helpers.formatCurrency(amount);
         }
-        return `$${(amount || 0).toFixed(2)}`;
+        return `€${(amount || 0).toFixed(2)}`;
     }
 
     /**
@@ -444,7 +444,7 @@ class Dashboard {
                                     size: 10
                                 },
                                 callback: function (value) {
-                                    return '$' + value.toLocaleString();
+                                    return '€' + value.toLocaleString();
                                 }
                             }
                         }

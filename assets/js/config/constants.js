@@ -1,238 +1,108 @@
 /**
- * FinancePro - Application Constants and Configuration
+ * FinancePro - Application Constants
+ * Global configuration and constant values
  * 
  * @version 2.0.0
  */
 
-// Application Configuration
-const CONFIG = {
-    APP_NAME: 'FinancePro',
-    VERSION: '2.0.0',
-    API_VERSION: 'v1',
-    STORAGE_PREFIX: 'financepro_',
-
-    // Chart Configuration
-    CHART_COLORS: [
-        '#6366f1', '#8b5cf6', '#06b6d4', '#10b981',
-        '#f59e0b', '#ef4444', '#ec4899', '#84cc16',
-        '#f97316', '#6b7280', '#14b8a6', '#8b5cf6'
-    ],
-
-    // Currency Settings
-    CURRENCY: {
-        SYMBOL: '€',
-        CODE: 'EUR',
-        DECIMALS: 2,
-        LOCALE: 'pt-PT'
-    },
-
-    // Date Settings
-    DATE_FORMAT: 'YYYY-MM-DD',
-    DISPLAY_DATE_FORMAT: 'MMM DD, YYYY',
-
-    // Pagination
-    DEFAULT_PAGE_SIZE: 10,
-    MAX_PAGE_SIZE: 100,
-
-    // Validation
-    MAX_AMOUNT: 1000000,
-    MIN_AMOUNT: 0.01,
-    MAX_DESCRIPTION_LENGTH: 255,
-
-    // UI Settings
-    ANIMATION_DURATION: 300,
-    DEBOUNCE_DELAY: 300,
-    NOTIFICATION_DURATION: 5000,
-
-    // Chart Settings
-    CHART_HEIGHT: 300,
-    CHART_ANIMATION_DURATION: 750,
-
-    // Auto-save Settings
-    AUTO_SAVE_INTERVAL: 30000, // 30 seconds
-
-    // Export Settings
-    EXPORT_FILENAME_PREFIX: 'financepro-export',
-
-    // Backup Settings
-    MAX_BACKUP_COUNT: 10,
-    BACKUP_INTERVAL: 24 * 60 * 60 * 1000, // 24 hours
-};
-
-// Transaction Categories
+// Expense Categories
 const EXPENSE_CATEGORIES = [
-    { id: 'food', name: 'Food & Dining', color: '#ef4444', icon: 'utensils' },
-    { id: 'transport', name: 'Transportation', color: '#3b82f6', icon: 'car' },
-    { id: 'shopping', name: 'Shopping', color: '#ec4899', icon: 'shopping-bag' },
-    { id: 'bills', name: 'Bills & Utilities', color: '#f59e0b', icon: 'receipt' },
-    { id: 'entertainment', name: 'Entertainment', color: '#8b5cf6', icon: 'film' },
-    { id: 'health', name: 'Health & Fitness', color: '#10b981', icon: 'heart' },
-    { id: 'education', name: 'Education', color: '#06b6d4', icon: 'book' },
-    { id: 'travel', name: 'Travel', color: '#84cc16', icon: 'plane' },
-    { id: 'insurance', name: 'Insurance', color: '#6b7280', icon: 'shield' },
-    { id: 'gifts', name: 'Gifts & Donations', color: '#f97316', icon: 'gift' },
-    { id: 'personal', name: 'Personal Care', color: '#14b8a6', icon: 'user' },
-    { id: 'home', name: 'Home & Garden', color: '#a855f7', icon: 'home' },
-    { id: 'other', name: 'Other Expenses', color: '#64748b', icon: 'more-horizontal' }
+    { id: 'food', name: 'Food & Dining' },
+    { id: 'transport', name: 'Transportation' },
+    { id: 'shopping', name: 'Shopping' },
+    { id: 'bills', name: 'Bills & Utilities' },
+    { id: 'entertainment', name: 'Entertainment' },
+    { id: 'healthcare', name: 'Healthcare' },
+    { id: 'education', name: 'Education' },
+    { id: 'travel', name: 'Travel' },
+    { id: 'personal', name: 'Personal Care' },
+    { id: 'gifts', name: 'Gifts & Donations' },
+    { id: 'insurance', name: 'Insurance' },
+    { id: 'rent', name: 'Rent & Mortgage' },
+    { id: 'other', name: 'Other' }
 ];
 
+// Income Categories
 const INCOME_CATEGORIES = [
-    { id: 'salary', name: 'Salary', color: '#10b981', icon: 'briefcase' },
-    { id: 'freelance', name: 'Freelance', color: '#3b82f6', icon: 'laptop' },
-    { id: 'business', name: 'Business', color: '#8b5cf6', icon: 'trending-up' },
-    { id: 'investment', name: 'Investment', color: '#06b6d4', icon: 'bar-chart' },
-    { id: 'rental', name: 'Rental Income', color: '#f59e0b', icon: 'key' },
-    { id: 'bonus', name: 'Bonus', color: '#ec4899', icon: 'award' },
-    { id: 'gift', name: 'Gift Money', color: '#f97316', icon: 'gift' },
-    { id: 'refund', name: 'Refunds', color: '#84cc16', icon: 'rotate-ccw' },
-    { id: 'other', name: 'Other Income', color: '#64748b', icon: 'plus-circle' }
+    { id: 'salary', name: 'Salary' },
+    { id: 'freelance', name: 'Freelance' },
+    { id: 'business', name: 'Business Income' },
+    { id: 'investment', name: 'Investment Returns' },
+    { id: 'rental', name: 'Rental Income' },
+    { id: 'gift', name: 'Gift/Bonus' },
+    { id: 'refund', name: 'Refund' },
+    { id: 'other', name: 'Other Income' }
 ];
 
-// All Categories Combined
-const CATEGORIES = [...EXPENSE_CATEGORIES, ...INCOME_CATEGORIES];
-
-// Goal Types
-const GOAL_TYPES = [
-    { id: 'savings', name: 'Savings Goal', color: '#10b981', icon: 'piggy-bank' },
-    { id: 'debt', name: 'Debt Payoff', color: '#ef4444', icon: 'credit-card' },
-    { id: 'purchase', name: 'Purchase Goal', color: '#3b82f6', icon: 'shopping-cart' },
-    { id: 'emergency', name: 'Emergency Fund', color: '#f59e0b', icon: 'shield' },
-    { id: 'vacation', name: 'Vacation Fund', color: '#ec4899', icon: 'plane' },
-    { id: 'retirement', name: 'Retirement', color: '#8b5cf6', icon: 'clock' },
-    { id: 'education', name: 'Education Fund', color: '#06b6d4', icon: 'graduation-cap' },
-    { id: 'investment', name: 'Investment Goal', color: '#84cc16', icon: 'trending-up' },
-    { id: 'home', name: 'Home Purchase', color: '#f97316', icon: 'home' },
-    { id: 'other', name: 'Other Goal', color: '#64748b', icon: 'target' }
+// Goal Categories
+const GOAL_CATEGORIES = [
+    { id: 'savings', name: 'Emergency Fund' },
+    { id: 'vacation', name: 'Vacation' },
+    { id: 'purchase', name: 'Major Purchase' },
+    { id: 'education', name: 'Education' },
+    { id: 'retirement', name: 'Retirement' },
+    { id: 'investment', name: 'Investment' },
+    { id: 'debt', name: 'Debt Payment' },
+    { id: 'other', name: 'Other Goal' }
 ];
 
 // Routine Frequencies
 const ROUTINE_FREQUENCIES = [
-    { id: 'daily', name: 'Daily', multiplier: 365, icon: 'calendar' },
-    { id: 'weekly', name: 'Weekly', multiplier: 52, icon: 'calendar' },
-    { id: 'biweekly', name: 'Bi-weekly', multiplier: 26, icon: 'calendar' },
-    { id: 'monthly', name: 'Monthly', multiplier: 12, icon: 'calendar' },
-    { id: 'quarterly', name: 'Quarterly', multiplier: 4, icon: 'calendar' },
-    { id: 'yearly', name: 'Yearly', multiplier: 1, icon: 'calendar' }
+    { id: 'daily', name: 'Daily' },
+    { id: 'weekly', name: 'Weekly' },
+    { id: 'biweekly', name: 'Bi-weekly' },
+    { id: 'monthly', name: 'Monthly' },
+    { id: 'quarterly', name: 'Quarterly' },
+    { id: 'yearly', name: 'Yearly' }
 ];
 
-// Transaction Types
-const TRANSACTION_TYPES = [
-    { id: 'income', name: 'Income', color: '#10b981', icon: 'trending-up' },
-    { id: 'expense', name: 'Expense', color: '#ef4444', icon: 'trending-down' },
-    { id: 'transfer', name: 'Transfer', color: '#3b82f6', icon: 'arrow-right-left' }
+// Currency Settings
+const CURRENCY_SETTINGS = {
+    symbol: '€',
+    code: 'EUR',
+    position: 'after', // 'before' or 'after'
+    decimals: 2,
+    thousandsSeparator: ',',
+    decimalSeparator: '.'
+};
+
+// Date Format Options
+const DATE_FORMATS = [
+    { id: 'DD/MM/YYYY', name: 'DD/MM/YYYY' },
+    { id: 'MM/DD/YYYY', name: 'MM/DD/YYYY' },
+    { id: 'YYYY-MM-DD', name: 'YYYY-MM-DD' }
 ];
 
-// Account Types
-const ACCOUNT_TYPES = [
-    { id: 'checking', name: 'Checking Account', color: '#3b82f6', icon: 'credit-card' },
-    { id: 'savings', name: 'Savings Account', color: '#10b981', icon: 'piggy-bank' },
-    { id: 'credit', name: 'Credit Card', color: '#ef4444', icon: 'credit-card' },
-    { id: 'investment', name: 'Investment Account', color: '#8b5cf6', icon: 'trending-up' },
-    { id: 'cash', name: 'Cash', color: '#f59e0b', icon: 'dollar-sign' },
-    { id: 'loan', name: 'Loan Account', color: '#f97316', icon: 'minus-circle' },
-    { id: 'other', name: 'Other Account', color: '#64748b', icon: 'more-horizontal' }
-];
+// Chart Colors
+const CHART_COLORS = {
+    primary: '#6366f1',
+    secondary: '#8b5cf6',
+    success: '#10b981',
+    danger: '#ef4444',
+    warning: '#f59e0b',
+    info: '#06b6d4',
+    income: '#10b981',
+    expense: '#ef4444',
+    balance: '#6366f1',
+    categories: [
+        '#6366f1', '#8b5cf6', '#06b6d4', '#10b981',
+        '#f59e0b', '#ef4444', '#ec4899', '#84cc16',
+        '#f97316', '#6b7280', '#14b8a6', '#a855f7'
+    ]
+};
 
-// Budget Categories
-const BUDGET_CATEGORIES = [
-    { id: 'needs', name: 'Needs (50%)', percentage: 50, color: '#ef4444' },
-    { id: 'wants', name: 'Wants (30%)', percentage: 30, color: '#f59e0b' },
-    { id: 'savings', name: 'Savings (20%)', percentage: 20, color: '#10b981' }
-];
-
-// Time Periods for Reports
-const TIME_PERIODS = [
-    { id: 'week', name: 'This Week', days: 7 },
-    { id: 'month', name: 'This Month', days: 30 },
-    { id: 'quarter', name: 'This Quarter', days: 90 },
-    { id: 'year', name: 'This Year', days: 365 },
-    { id: 'custom', name: 'Custom Range', days: null }
-];
-
-// Chart Types
-const CHART_TYPES = [
-    { id: 'line', name: 'Line Chart', icon: 'trending-up' },
-    { id: 'bar', name: 'Bar Chart', icon: 'bar-chart' },
-    { id: 'pie', name: 'Pie Chart', icon: 'pie-chart' },
-    { id: 'doughnut', name: 'Doughnut Chart', icon: 'circle' },
-    { id: 'area', name: 'Area Chart', icon: 'area-chart' }
-];
-
-// Default Chart Options
-const DEFAULT_CHART_OPTIONS = {
-    responsive: true,
-    maintainAspectRatio: false,
-    animation: {
-        duration: CONFIG.CHART_ANIMATION_DURATION
-    },
-    plugins: {
-        legend: {
-            display: true,
-            position: 'bottom',
-            labels: {
-                usePointStyle: true,
-                padding: 20,
-                color: '#e2e8f0',
-                font: {
-                    family: 'Inter',
-                    size: 12,
-                    weight: '500'
-                }
-            }
-        },
-        tooltip: {
-            backgroundColor: '#1e1e2e',
-            titleColor: '#e2e8f0',
-            bodyColor: '#94a3b8',
-            borderColor: '#334155',
-            borderWidth: 1,
-            cornerRadius: 8,
-            displayColors: true,
-            titleFont: {
-                family: 'Inter',
-                size: 13,
-                weight: '600'
-            },
-            bodyFont: {
-                family: 'Inter',
-                size: 12,
-                weight: '500'
-            }
-        }
-    },
-    scales: {
-        x: {
-            grid: {
-                color: '#334155',
-                borderColor: '#475569'
-            },
-            ticks: {
-                color: '#94a3b8',
-                font: {
-                    family: 'Inter',
-                    size: 11,
-                    weight: '500'
-                }
-            }
-        },
-        y: {
-            grid: {
-                color: '#334155',
-                borderColor: '#475569'
-            },
-            ticks: {
-                color: '#94a3b8',
-                font: {
-                    family: 'Inter',
-                    size: 11,
-                    weight: '500'
-                },
-                callback: function (value) {
-                    return CONFIG.CURRENCY.SYMBOL + value.toFixed(CONFIG.CURRENCY.DECIMALS);
-                }
-            }
-        }
-    }
+// Application Settings
+const APP_SETTINGS = {
+    name: 'FinancePro',
+    version: '2.0.0',
+    defaultTheme: 'dark',
+    autoSaveInterval: 30000, // 30 seconds
+    refreshInterval: 300000, // 5 minutes
+    maxTransactionsPerPage: 50,
+    maxGoalsDisplay: 10,
+    maxRoutinesDisplay: 20,
+    dateFormat: 'DD/MM/YYYY',
+    currency: 'EUR'
 };
 
 // Notification Types
@@ -243,104 +113,104 @@ const NOTIFICATION_TYPES = {
     INFO: 'info'
 };
 
-// Local Storage Keys
-const STORAGE_KEYS = {
-    TRANSACTIONS: CONFIG.STORAGE_PREFIX + 'transactions',
-    GOALS: CONFIG.STORAGE_PREFIX + 'goals',
-    ROUTINES: CONFIG.STORAGE_PREFIX + 'routines',
-    ACCOUNTS: CONFIG.STORAGE_PREFIX + 'accounts',
-    BUDGETS: CONFIG.STORAGE_PREFIX + 'budgets',
-    SETTINGS: CONFIG.STORAGE_PREFIX + 'settings',
-    THEME: CONFIG.STORAGE_PREFIX + 'theme',
-    STATE: CONFIG.STORAGE_PREFIX + 'state',
-    VERSION: CONFIG.STORAGE_PREFIX + 'version',
-    BACKUPS: CONFIG.STORAGE_PREFIX + 'backups'
+// Notification Duration (milliseconds)
+const NOTIFICATION_DURATION = {
+    SHORT: 2000,
+    MEDIUM: 5000,
+    LONG: 8000
 };
 
-// Default Settings
-const DEFAULT_SETTINGS = {
-    currency: CONFIG.CURRENCY,
-    dateFormat: CONFIG.DISPLAY_DATE_FORMAT,
-    theme: 'dark',
-    notifications: true,
-    autoSave: true,
-    autoBackup: true,
-    defaultAccount: null,
-    budgetAlerts: true,
-    goalReminders: true,
-    language: 'en',
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+// Report Types
+const REPORT_TYPES = [
+    { id: 'monthly', name: 'Monthly Summary' },
+    { id: 'yearly', name: 'Yearly Summary' },
+    { id: 'category', name: 'Category Analysis' },
+    { id: 'trends', name: 'Trend Analysis' },
+    { id: 'goals', name: 'Goals Progress' },
+    { id: 'custom', name: 'Custom Report' }
+];
+
+// Export Formats
+const EXPORT_FORMATS = [
+    { id: 'json', name: 'JSON', extension: '.json' },
+    { id: 'csv', name: 'CSV', extension: '.csv' },
+    { id: 'pdf', name: 'PDF', extension: '.pdf' }
+];
+
+// Transaction Types
+const TRANSACTION_TYPES = {
+    INCOME: 'income',
+    EXPENSE: 'expense'
+};
+
+// Sort Options
+const SORT_OPTIONS = [
+    { id: 'date-desc', name: 'Date (Newest First)', field: 'date', order: 'desc' },
+    { id: 'date-asc', name: 'Date (Oldest First)', field: 'date', order: 'asc' },
+    { id: 'amount-desc', name: 'Amount (High to Low)', field: 'amount', order: 'desc' },
+    { id: 'amount-asc', name: 'Amount (Low to High)', field: 'amount', order: 'asc' },
+    { id: 'category', name: 'Category', field: 'category', order: 'asc' }
+];
+
+// Filter Periods
+const FILTER_PERIODS = [
+    { id: 'today', name: 'Today' },
+    { id: 'yesterday', name: 'Yesterday' },
+    { id: 'week', name: 'This Week' },
+    { id: 'month', name: 'This Month' },
+    { id: 'quarter', name: 'This Quarter' },
+    { id: 'year', name: 'This Year' },
+    { id: 'last30', name: 'Last 30 Days' },
+    { id: 'last90', name: 'Last 90 Days' },
+    { id: 'custom', name: 'Custom Range' }
+];
+
+// Keyboard Shortcuts
+const KEYBOARD_SHORTCUTS = {
+    QUICK_ADD: 'Ctrl+N',
+    TOGGLE_THEME: 'Ctrl+T',
+    DASHBOARD: 'Ctrl+1',
+    TRANSACTIONS: 'Ctrl+2',
+    GOALS: 'Ctrl+3',
+    ROUTINES: 'Ctrl+4',
+    REPORTS: 'Ctrl+5',
+    SEARCH: 'Ctrl+F',
+    EXPORT: 'Ctrl+E',
+    HELP: 'Ctrl+H'
 };
 
 // Validation Rules
 const VALIDATION_RULES = {
-    amount: {
-        required: true,
-        min: CONFIG.MIN_AMOUNT,
-        max: CONFIG.MAX_AMOUNT,
-        decimal: CONFIG.CURRENCY.DECIMALS
+    transaction: {
+        minAmount: 0.01,
+        maxAmount: 1000000,
+        maxDescriptionLength: 200,
+        maxNotesLength: 500
     },
-    description: {
-        required: true,
-        minLength: 1,
-        maxLength: CONFIG.MAX_DESCRIPTION_LENGTH
+    goal: {
+        minAmount: 1,
+        maxAmount: 10000000,
+        maxNameLength: 100,
+        maxNotesLength: 500
     },
-    date: {
-        required: true,
-        format: CONFIG.DATE_FORMAT
-    },
-    category: {
-        required: true,
-        validOptions: CATEGORIES.map(c => c.id)
-    },
-    goalAmount: {
-        required: true,
-        min: CONFIG.MIN_AMOUNT,
-        max: CONFIG.MAX_AMOUNT * 10 // Goals can be larger
+    routine: {
+        minAmount: 0.01,
+        maxAmount: 100000,
+        maxNameLength: 100,
+        maxNotesLength: 500
     }
-};
-
-// API Endpoints (for future API integration)
-const API_ENDPOINTS = {
-    BASE_URL: '/api/v1',
-    TRANSACTIONS: '/transactions',
-    GOALS: '/goals',
-    ROUTINES: '/routines',
-    ACCOUNTS: '/accounts',
-    REPORTS: '/reports',
-    EXPORT: '/export',
-    IMPORT: '/import'
-};
-
-// Feature Flags
-const FEATURE_FLAGS = {
-    MULTIPLE_ACCOUNTS: false,
-    BUDGETS: false,
-    INVESTMENTS: false,
-    BILL_REMINDERS: false,
-    BANK_SYNC: false,
-    MOBILE_APP: false,
-    ADVANCED_ANALYTICS: true,
-    GOAL_TRACKING: true,
-    ROUTINE_TRACKING: true,
-    PDF_REPORTS: true,
-    DATA_EXPORT: true,
-    THEMES: true
 };
 
 // Error Messages
 const ERROR_MESSAGES = {
-    REQUIRED_FIELD: 'This field is required',
-    INVALID_AMOUNT: 'Please enter a valid amount',
-    INVALID_DATE: 'Please enter a valid date',
-    INVALID_EMAIL: 'Please enter a valid email address',
-    AMOUNT_TOO_LARGE: `Amount cannot exceed ${CONFIG.CURRENCY.SYMBOL}${CONFIG.MAX_AMOUNT.toLocaleString()}`,
-    AMOUNT_TOO_SMALL: `Amount must be at least ${CONFIG.CURRENCY.SYMBOL}${CONFIG.MIN_AMOUNT}`,
-    DESCRIPTION_TOO_LONG: `Description cannot exceed ${CONFIG.MAX_DESCRIPTION_LENGTH} characters`,
-    NETWORK_ERROR: 'Network error. Please check your connection.',
-    STORAGE_ERROR: 'Failed to save data. Please try again.',
-    INVALID_FILE: 'Invalid file format. Please select a valid file.',
-    IMPORT_ERROR: 'Failed to import data. Please check the file format.'
+    NETWORK_ERROR: 'Network connection error. Please check your internet connection.',
+    SAVE_ERROR: 'Failed to save data. Please try again.',
+    LOAD_ERROR: 'Failed to load data. Please refresh the page.',
+    VALIDATION_ERROR: 'Please check your input and try again.',
+    GENERAL_ERROR: 'An unexpected error occurred. Please try again.',
+    INSUFFICIENT_FUNDS: 'Insufficient funds for this transaction.',
+    INVALID_DATE: 'Please enter a valid date.',
+    INVALID_AMOUNT: 'Please enter a valid amount.'
 };
 
 // Success Messages
@@ -348,43 +218,34 @@ const SUCCESS_MESSAGES = {
     TRANSACTION_ADDED: 'Transaction added successfully',
     TRANSACTION_UPDATED: 'Transaction updated successfully',
     TRANSACTION_DELETED: 'Transaction deleted successfully',
-    GOAL_ADDED: 'Goal created successfully',
+    GOAL_ADDED: 'Goal added successfully',
     GOAL_UPDATED: 'Goal updated successfully',
     GOAL_DELETED: 'Goal deleted successfully',
-    GOAL_COMPLETED: 'Congratulations! Goal completed!',
     ROUTINE_ADDED: 'Routine added successfully',
     ROUTINE_UPDATED: 'Routine updated successfully',
     ROUTINE_DELETED: 'Routine deleted successfully',
     DATA_EXPORTED: 'Data exported successfully',
     DATA_IMPORTED: 'Data imported successfully',
-    DATA_CLEARED: 'All data cleared successfully',
-    SETTINGS_SAVED: 'Settings saved successfully',
-    BACKUP_CREATED: 'Backup created successfully',
-    BACKUP_RESTORED: 'Backup restored successfully'
+    SETTINGS_SAVED: 'Settings saved successfully'
 };
 
-// Export all constants
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        CONFIG,
-        EXPENSE_CATEGORIES,
-        INCOME_CATEGORIES,
-        CATEGORIES,
-        GOAL_TYPES,
-        ROUTINE_FREQUENCIES,
-        TRANSACTION_TYPES,
-        ACCOUNT_TYPES,
-        BUDGET_CATEGORIES,
-        TIME_PERIODS,
-        CHART_TYPES,
-        DEFAULT_CHART_OPTIONS,
-        NOTIFICATION_TYPES,
-        STORAGE_KEYS,
-        DEFAULT_SETTINGS,
-        VALIDATION_RULES,
-        API_ENDPOINTS,
-        FEATURE_FLAGS,
-        ERROR_MESSAGES,
-        SUCCESS_MESSAGES
-    };
-}
+// Make constants available globally
+window.EXPENSE_CATEGORIES = EXPENSE_CATEGORIES;
+window.INCOME_CATEGORIES = INCOME_CATEGORIES;
+window.GOAL_CATEGORIES = GOAL_CATEGORIES;
+window.ROUTINE_FREQUENCIES = ROUTINE_FREQUENCIES;
+window.CURRENCY_SETTINGS = CURRENCY_SETTINGS;
+window.DATE_FORMATS = DATE_FORMATS;
+window.CHART_COLORS = CHART_COLORS;
+window.APP_SETTINGS = APP_SETTINGS;
+window.NOTIFICATION_TYPES = NOTIFICATION_TYPES;
+window.NOTIFICATION_DURATION = NOTIFICATION_DURATION;
+window.REPORT_TYPES = REPORT_TYPES;
+window.EXPORT_FORMATS = EXPORT_FORMATS;
+window.TRANSACTION_TYPES = TRANSACTION_TYPES;
+window.SORT_OPTIONS = SORT_OPTIONS;
+window.FILTER_PERIODS = FILTER_PERIODS;
+window.KEYBOARD_SHORTCUTS = KEYBOARD_SHORTCUTS;
+window.VALIDATION_RULES = VALIDATION_RULES;
+window.ERROR_MESSAGES = ERROR_MESSAGES;
+window.SUCCESS_MESSAGES = SUCCESS_MESSAGES;

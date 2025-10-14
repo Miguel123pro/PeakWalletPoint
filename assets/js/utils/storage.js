@@ -1,51 +1,54 @@
 /**
- * FinancePro - Data Storage Management
- * Handles all data persistence operations
+ * FinancePro - Storage Utility
+ * In-memory data management system
  * 
  * @version 2.0.0
  */
 
-class Storage {
-    static instance = null;
-
+class StorageManager {
     constructor() {
-        if (Storage.instance) {
-            return Storage.instance;
-        }
-
-        this.isInitialized = false;
+        // In-memory data store
         this.data = {
             transactions: [],
             goals: [],
             routines: [],
-            accounts: [],
-            budgets: [],
-            settings: { ...DEFAULT_SETTINGS }
+            settings: {},
+            initialized: false
         };
 
-        Storage.instance = this;
+        // Transaction ID counter
+        this.transactionIdCounter = 1;
+        this.goalIdCounter = 1;
+        this.routineIdCounter = 1;
     }
 
     /**
      * Initialize storage system
      */
-    static async init() {
-        const storage = new Storage();
-        await storage.initialize();
-        return storage;
-    }
-
-    /**
-     * Initialize storage instance
-     */
-    async initialize() {
+    async init() {
         try {
-            await this.loadAllData();
-            await this.runMigrations();
-            await this.createBackupIfNeeded();
+            console.log('Initializing Storage...');
 
-            this.isInitialized = true;
+            // Initialize with empty data structure
+            this.data = {
+                transactions: [],
+                goals: [],
+                routines: [],
+                settings: {
+                    currency: 'EUR',
+                    currencySymbol: '€',
+                    dateFormat: 'DD/MM/YYYY',
+                    startingBalance: 0
+                },
+                initialized: true
+            };
+
+            this.transactionIdCounter = 1;
+            this.goalIdCounter = 1;
+            this.routineIdCounter = 1;
+
             console.log('Storage initialized successfully');
+            return true;
         } catch (error) {
             console.error('Failed to initialize storage:', error);
             throw error;
@@ -53,720 +56,609 @@ class Storage {
     }
 
     /**
-     * Load all data from localStorage
+     * Get current balance
      */
-    async loadAllData() {
+    getBalance() {
         try {
-            // Load each data type
-            this.data.transactions = this.loadFromStorage(STORAGE_KEYS.TRANSACTIONS, []);
-            this.data.goals = this.loadFromStorage(STORAGE_KEYS.GOALS, []);
-            this.data.routines = this.loadFromStorage(STORAGE_KEYS.ROUTINES, []);
-            this.data.accounts = this.loadFromStorage(STORAGE_KEYS.ACCOUNTS, []);
-            this.data.budgets = this.loadFromStorage(STORAGE_KEYS.BUDGETS, []);
-            this.data.settings = this.loadFromStorage(STORAGE_KEYS.SETTINGS, DEFAULT_SETTINGS);
-
-            // Validate and clean data
-            await this.validateAndCleanData();
-
+            const startingBalance = this.data.settings.startingBalance || 0;
+            const transactionsTotal = this.data.transactions.reduce((sum, t) => sum + t.amount, 0);
+            return startingBalance + transactionsTotal;
         } catch (error) {
-            console.error('Failed to load data:', error);
-            throw new Error('Failed to load application data');
+            console.error('Failed to get balance:', error);
+            return 0;
         }
     }
 
     /**
-     * Load data from localStorage with error handling
+     * Get total balance (alias for getBalance)
      */
-    loadFromStorage(key, defaultValue) {
+    getTotalBalance() {
+        return this.getBalance();
+    }
+
+    /**
+     * Add a new transaction
+     */
+    async addTransaction(transactionData) {
         try {
-            const data = localStorage.getItem(key);
-            if (data === null) {
-                return defaultValue;
+            // Validate required fields
+            if (!transactionData.amount || !transactionData.description) {
+                throw new Error('Amount and description are required');
             }
 
-            const parsed = JSON.parse(data);
-            return parsed !== null ? parsed : defaultValue;
-        } catch (error) {
-            console.warn(`Failed to parse ${key} from localStorage:`, error);
-            return defaultValue;
-        }
-    }
+            // Parse amount and ensure correct sign based on type
+            let amount = parseFloat(transactionData.amount);
+            const type = transactionData.type || (amount > 0 ? 'income' : 'expense');
 
-    /**
-     * Save data to localStorage with error handling
-     */
-    saveToStorage(key, data) {
-        try {
-            localStorage.setItem(key, JSON.stringify(data));
-            return true;
-        } catch (error) {
-            console.error(`Failed to save ${key} to localStorage:`, error);
-
-            // Handle quota exceeded error
-            if (error.name === 'QuotaExceededError') {
-                this.handleStorageQuotaExceeded();
+            // CRITICAL: Ensure expenses are negative and income is positive
+            if (type === 'expense' && amount > 0) {
+                amount = -amount;
+            } else if (type === 'income' && amount < 0) {
+                amount = Math.abs(amount);
             }
 
-            throw new Error(`Failed to save data: ${error.message}`);
-        }
-    }
-
-    /**
-     * Handle storage quota exceeded
-     */
-    handleStorageQuotaExceeded() {
-        console.warn('Storage quota exceeded, cleaning up old data');
-
-        // Remove old backups
-        this.cleanupOldBackups();
-
-        // Remove old session data
-        this.cleanupSessionData();
-
-        // Notify user
-        if (window.app) {
-            window.app.showNotification(
-                'Storage space is running low. Old backups have been cleaned up.',
-                'warning'
-            );
-        }
-    }
-
-    /**
-     * Validate and clean loaded data
-     */
-    async validateAndCleanData() {
-        // Validate transactions
-        this.data.transactions = this.data.transactions.filter(t =>
-            this.isValidTransaction(t)
-        );
-
-        // Validate goals
-        this.data.goals = this.data.goals.filter(g =>
-            this.isValidGoal(g)
-        );
-
-        // Validate routines
-        this.data.routines = this.data.routines.filter(r =>
-            this.isValidRoutine(r)
-        );
-
-        // Ensure all transactions have IDs
-        this.data.transactions.forEach(t => {
-            if (!t.id) {
-                t.id = this.generateId();
-            }
-        });
-
-        // Ensure all goals have IDs
-        this.data.goals.forEach(g => {
-            if (!g.id) {
-                g.id = this.generateId();
-            }
-        });
-
-        // Ensure all routines have IDs
-        this.data.routines.forEach(r => {
-            if (!r.id) {
-                r.id = this.generateId();
-            }
-        });
-
-        // Sort data by date/creation time
-        this.sortData();
-    }
-
-    /**
-     * Validate transaction object
-     */
-    isValidTransaction(transaction) {
-        return transaction &&
-            typeof transaction.id !== 'undefined' &&
-            typeof transaction.amount === 'number' &&
-            typeof transaction.description === 'string' &&
-            typeof transaction.category === 'string' &&
-            typeof transaction.date === 'string' &&
-            ['income', 'expense'].includes(transaction.type);
-    }
-
-    /**
-     * Validate goal object
-     */
-    isValidGoal(goal) {
-        return goal &&
-            typeof goal.id !== 'undefined' &&
-            typeof goal.name === 'string' &&
-            typeof goal.targetAmount === 'number' &&
-            typeof goal.currentAmount === 'number' &&
-            typeof goal.deadline === 'string';
-    }
-
-    /**
-     * Validate routine object
-     */
-    isValidRoutine(routine) {
-        return routine &&
-            typeof routine.id !== 'undefined' &&
-            typeof routine.name === 'string' &&
-            typeof routine.amount === 'number' &&
-            typeof routine.frequency === 'string' &&
-            typeof routine.category === 'string';
-    }
-
-    /**
-     * Sort data arrays
-     */
-    sortData() {
-        // Sort transactions by date (newest first)
-        this.data.transactions.sort((a, b) =>
-            new Date(b.date) - new Date(a.date)
-        );
-
-        // Sort goals by deadline (nearest first)
-        this.data.goals.sort((a, b) =>
-            new Date(a.deadline) - new Date(b.deadline)
-        );
-
-        // Sort routines by name
-        this.data.routines.sort((a, b) =>
-            a.name.localeCompare(b.name)
-        );
-    }
-
-    /**
-     * Generate unique ID
-     */
-    generateId() {
-        return Date.now().toString(36) + Math.random().toString(36).substr(2);
-    }
-
-    // ===============================
-    // TRANSACTION OPERATIONS
-    // ===============================
-
-    /**
-     * Get all transactions
-     */
-    static async getTransactions(filters = {}) {
-        const storage = new Storage();
-        let transactions = [...storage.data.transactions];
-
-        // Apply filters
-        if (filters.type) {
-            transactions = transactions.filter(t => t.type === filters.type);
-        }
-
-        if (filters.category) {
-            transactions = transactions.filter(t => t.category === filters.category);
-        }
-
-        if (filters.startDate) {
-            transactions = transactions.filter(t =>
-                new Date(t.date) >= new Date(filters.startDate)
-            );
-        }
-
-        if (filters.endDate) {
-            transactions = transactions.filter(t =>
-                new Date(t.date) <= new Date(filters.endDate)
-            );
-        }
-
-        if (filters.limit) {
-            transactions = transactions.slice(0, filters.limit);
-        }
-
-        return transactions;
-    }
-
-    /**
-     * Add new transaction
-     */
-    static async addTransaction(transactionData) {
-        const storage = new Storage();
-
-        const transaction = {
-            id: storage.generateId(),
-            type: transactionData.type,
-            amount: transactionData.type === 'expense' ?
-                -Math.abs(transactionData.amount) :
-                Math.abs(transactionData.amount),
-            description: transactionData.description,
-            category: transactionData.category,
-            date: transactionData.date,
-            account: transactionData.account || 'default',
-            tags: transactionData.tags || [],
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-        };
-
-        storage.data.transactions.unshift(transaction);
-        storage.saveToStorage(STORAGE_KEYS.TRANSACTIONS, storage.data.transactions);
-
-        return transaction;
-    }
-
-    /**
-     * Update transaction
-     */
-    static async updateTransaction(id, updates) {
-        const storage = new Storage();
-
-        const index = storage.data.transactions.findIndex(t => t.id === id);
-        if (index === -1) {
-            throw new Error('Transaction not found');
-        }
-
-        storage.data.transactions[index] = {
-            ...storage.data.transactions[index],
-            ...updates,
-            updatedAt: new Date().toISOString()
-        };
-
-        storage.saveToStorage(STORAGE_KEYS.TRANSACTIONS, storage.data.transactions);
-
-        return storage.data.transactions[index];
-    }
-
-    /**
-     * Delete transaction
-     */
-    static async deleteTransaction(id) {
-        const storage = new Storage();
-
-        const index = storage.data.transactions.findIndex(t => t.id === id);
-        if (index === -1) {
-            throw new Error('Transaction not found');
-        }
-
-        const deleted = storage.data.transactions.splice(index, 1)[0];
-        storage.saveToStorage(STORAGE_KEYS.TRANSACTIONS, storage.data.transactions);
-
-        return deleted;
-    }
-
-    // ===============================
-    // GOAL OPERATIONS
-    // ===============================
-
-    /**
-     * Get all goals
-     */
-    static async getGoals() {
-        const storage = new Storage();
-        return [...storage.data.goals];
-    }
-
-    /**
-     * Add new goal
-     */
-    static async addGoal(goalData) {
-        const storage = new Storage();
-
-        const goal = {
-            id: storage.generateId(),
-            name: goalData.name,
-            targetAmount: goalData.targetAmount,
-            currentAmount: goalData.currentAmount || 0,
-            deadline: goalData.deadline,
-            category: goalData.category || 'other',
-            description: goalData.description || '',
-            priority: goalData.priority || 'medium',
-            isCompleted: false,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-        };
-
-        storage.data.goals.push(goal);
-        storage.sortData();
-        storage.saveToStorage(STORAGE_KEYS.GOALS, storage.data.goals);
-
-        return goal;
-    }
-
-    /**
-     * Update goal
-     */
-    static async updateGoal(id, updates) {
-        const storage = new Storage();
-
-        const index = storage.data.goals.findIndex(g => g.id === id);
-        if (index === -1) {
-            throw new Error('Goal not found');
-        }
-
-        storage.data.goals[index] = {
-            ...storage.data.goals[index],
-            ...updates,
-            updatedAt: new Date().toISOString()
-        };
-
-        // Check if goal is completed
-        if (storage.data.goals[index].currentAmount >= storage.data.goals[index].targetAmount) {
-            storage.data.goals[index].isCompleted = true;
-            storage.data.goals[index].completedAt = new Date().toISOString();
-        }
-
-        storage.saveToStorage(STORAGE_KEYS.GOALS, storage.data.goals);
-
-        return storage.data.goals[index];
-    }
-
-    /**
-     * Delete goal
-     */
-    static async deleteGoal(id) {
-        const storage = new Storage();
-
-        const index = storage.data.goals.findIndex(g => g.id === id);
-        if (index === -1) {
-            throw new Error('Goal not found');
-        }
-
-        const deleted = storage.data.goals.splice(index, 1)[0];
-        storage.saveToStorage(STORAGE_KEYS.GOALS, storage.data.goals);
-
-        return deleted;
-    }
-
-    // ===============================
-    // ROUTINE OPERATIONS
-    // ===============================
-
-    /**
-     * Get all routines
-     */
-    static async getRoutines() {
-        const storage = new Storage();
-        return [...storage.data.routines];
-    }
-
-    /**
-     * Add new routine
-     */
-    static async addRoutine(routineData) {
-        const storage = new Storage();
-
-        const routine = {
-            id: storage.generateId(),
-            name: routineData.name,
-            amount: Math.abs(routineData.amount),
-            frequency: routineData.frequency,
-            category: routineData.category,
-            description: routineData.description || '',
-            isActive: routineData.isActive !== false,
-            nextDate: routineData.nextDate || new Date().toISOString().split('T')[0],
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-        };
-
-        storage.data.routines.push(routine);
-        storage.sortData();
-        storage.saveToStorage(STORAGE_KEYS.ROUTINES, storage.data.routines);
-
-        return routine;
-    }
-
-    /**
-     * Update routine
-     */
-    static async updateRoutine(id, updates) {
-        const storage = new Storage();
-
-        const index = storage.data.routines.findIndex(r => r.id === id);
-        if (index === -1) {
-            throw new Error('Routine not found');
-        }
-
-        storage.data.routines[index] = {
-            ...storage.data.routines[index],
-            ...updates,
-            updatedAt: new Date().toISOString()
-        };
-
-        storage.saveToStorage(STORAGE_KEYS.ROUTINES, storage.data.routines);
-
-        return storage.data.routines[index];
-    }
-
-    /**
-     * Delete routine
-     */
-    static async deleteRoutine(id) {
-        const storage = new Storage();
-
-        const index = storage.data.routines.findIndex(r => r.id === id);
-        if (index === -1) {
-            throw new Error('Routine not found');
-        }
-
-        const deleted = storage.data.routines.splice(index, 1)[0];
-        storage.saveToStorage(STORAGE_KEYS.ROUTINES, storage.data.routines);
-
-        return deleted;
-    }
-
-    // ===============================
-    // ANALYTICS & REPORTS
-    // ===============================
-
-    /**
-     * Get total balance
-     */
-    static async getTotalBalance() {
-        const storage = new Storage();
-        return storage.data.transactions.reduce((sum, t) => sum + t.amount, 0);
-    }
-
-    /**
-     * Get monthly summary
-     */
-    static async getMonthlySummary(year, month) {
-        const transactions = await this.getTransactions({
-            startDate: `${year}-${String(month).padStart(2, '0')}-01`,
-            endDate: `${year}-${String(month).padStart(2, '0')}-31`
-        });
-
-        const income = transactions
-            .filter(t => t.amount > 0)
-            .reduce((sum, t) => sum + t.amount, 0);
-
-        const expenses = Math.abs(transactions
-            .filter(t => t.amount < 0)
-            .reduce((sum, t) => sum + t.amount, 0));
-
-        return {
-            income,
-            expenses,
-            balance: income - expenses,
-            transactions: transactions.length,
-            savingsRate: income > 0 ? ((income - expenses) / income * 100) : 0
-        };
-    }
-
-    /**
-     * Get spending by category
-     */
-    static async getSpendingByCategory(startDate, endDate) {
-        const transactions = await this.getTransactions({
-            type: 'expense',
-            startDate,
-            endDate
-        });
-
-        const categoryTotals = {};
-
-        transactions.forEach(t => {
-            const category = t.category;
-            categoryTotals[category] = (categoryTotals[category] || 0) + Math.abs(t.amount);
-        });
-
-        return Object.entries(categoryTotals)
-            .map(([category, amount]) => ({ category, amount }))
-            .sort((a, b) => b.amount - a.amount);
-    }
-
-    /**
-     * Get financial trends
-     */
-    static async getFinancialTrends(months = 6) {
-        const trends = [];
-        const now = new Date();
-
-        for (let i = months - 1; i >= 0; i--) {
-            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-            const year = date.getFullYear();
-            const month = date.getMonth() + 1;
-
-            const summary = await this.getMonthlySummary(year, month);
-
-            trends.push({
-                month: date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-                ...summary
-            });
-        }
-
-        return trends;
-    }
-
-    // ===============================
-    // BACKUP & EXPORT
-    // ===============================
-
-    /**
-     * Create backup
-     */
-    async createBackup() {
-        try {
-            const backup = {
-                version: CONFIG.VERSION,
-                timestamp: new Date().toISOString(),
-                data: { ...this.data }
+            // Create transaction object
+            const transaction = {
+                id: this.transactionIdCounter++,
+                type: type,
+                amount: amount,
+                category: transactionData.category || 'other',
+                description: transactionData.description.trim(),
+                date: transactionData.date || new Date().toISOString().split('T')[0],
+                notes: transactionData.notes || '',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
             };
 
-            const backups = this.loadFromStorage(STORAGE_KEYS.BACKUPS, []);
-            backups.push(backup);
+            // Add to transactions array
+            this.data.transactions.push(transaction);
 
-            // Keep only latest backups
-            if (backups.length > CONFIG.MAX_BACKUP_COUNT) {
-                backups.splice(0, backups.length - CONFIG.MAX_BACKUP_COUNT);
-            }
+            // Sort by date (newest first)
+            this.data.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            this.saveToStorage(STORAGE_KEYS.BACKUPS, backups);
-
-            return backup;
+            console.log('Transaction added:', transaction);
+            return transaction;
         } catch (error) {
-            console.error('Failed to create backup:', error);
+            console.error('Failed to add transaction:', error);
             throw error;
         }
     }
 
     /**
-     * Create backup if needed
+     * Update an existing transaction
      */
-    async createBackupIfNeeded() {
-        const backups = this.loadFromStorage(STORAGE_KEYS.BACKUPS, []);
-        const lastBackup = backups[backups.length - 1];
+    async updateTransaction(id, updates) {
+        try {
+            // Convert ID to number if it's a string
+            const numericId = typeof id === 'string' ? parseInt(id) : id;
 
-        if (!lastBackup ||
-            Date.now() - new Date(lastBackup.timestamp).getTime() > CONFIG.BACKUP_INTERVAL) {
-            await this.createBackup();
+            const index = this.data.transactions.findIndex(t => t.id === numericId);
+            if (index === -1) {
+                console.error('Transaction not found with ID:', id);
+                throw new Error('Transaction not found');
+            }
+
+            // Update transaction
+            this.data.transactions[index] = {
+                ...this.data.transactions[index],
+                ...updates,
+                updatedAt: new Date().toISOString()
+            };
+
+            // Re-sort transactions
+            this.data.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            console.log('Transaction updated:', this.data.transactions[index]);
+            return this.data.transactions[index];
+        } catch (error) {
+            console.error('Failed to update transaction:', error);
+            throw error;
         }
+    }
+
+    /**
+     * Delete a transaction
+     */
+    async deleteTransaction(id) {
+        try {
+            // Convert ID to number if it's a string
+            const numericId = typeof id === 'string' ? parseInt(id) : id;
+
+            const index = this.data.transactions.findIndex(t => t.id === numericId);
+            if (index === -1) {
+                console.error('Transaction not found with ID:', id, 'Numeric ID:', numericId);
+                console.log('Available transactions:', this.data.transactions.map(t => ({ id: t.id, desc: t.description })));
+                throw new Error('Transaction not found');
+            }
+
+            const deleted = this.data.transactions[index];
+            this.data.transactions.splice(index, 1);
+
+            console.log('Transaction deleted:', deleted);
+            return true;
+        } catch (error) {
+            console.error('Failed to delete transaction:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Get transactions with optional filters
+     */
+    async getTransactions(options = {}) {
+        try {
+            let transactions = [...this.data.transactions];
+
+            // Apply filters
+            if (options.type) {
+                transactions = transactions.filter(t => t.type === options.type);
+            }
+
+            if (options.category) {
+                transactions = transactions.filter(t => t.category === options.category);
+            }
+
+            if (options.startDate) {
+                transactions = transactions.filter(t => t.date >= options.startDate);
+            }
+
+            if (options.endDate) {
+                transactions = transactions.filter(t => t.date <= options.endDate);
+            }
+
+            if (options.search) {
+                const searchLower = options.search.toLowerCase();
+                transactions = transactions.filter(t =>
+                    t.description.toLowerCase().includes(searchLower) ||
+                    (t.notes && t.notes.toLowerCase().includes(searchLower))
+                );
+            }
+
+            // Apply sorting
+            if (options.sortBy) {
+                transactions.sort((a, b) => {
+                    if (options.sortBy === 'date') {
+                        return options.sortOrder === 'asc'
+                            ? new Date(a.date) - new Date(b.date)
+                            : new Date(b.date) - new Date(a.date);
+                    } else if (options.sortBy === 'amount') {
+                        return options.sortOrder === 'asc'
+                            ? a.amount - b.amount
+                            : b.amount - a.amount;
+                    }
+                    return 0;
+                });
+            }
+
+            // Apply limit
+            if (options.limit) {
+                transactions = transactions.slice(0, options.limit);
+            }
+
+            return transactions;
+        } catch (error) {
+            console.error('Failed to get transactions:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Get monthly summary
+     */
+    async getMonthlySummary(year, month) {
+        try {
+            const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
+            const endDate = new Date(year, month, 0).toISOString().split('T')[0];
+
+            const transactions = await this.getTransactions({
+                startDate,
+                endDate
+            });
+
+            const income = transactions
+                .filter(t => t.amount > 0)
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            const expenses = transactions
+                .filter(t => t.amount < 0)
+                .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+            return {
+                year,
+                month,
+                income,
+                expenses,
+                savings: income - expenses,
+                transactionCount: transactions.length
+            };
+        } catch (error) {
+            console.error('Failed to get monthly summary:', error);
+            return {
+                year,
+                month,
+                income: 0,
+                expenses: 0,
+                savings: 0,
+                transactionCount: 0
+            };
+        }
+    }
+
+    /**
+     * Get financial trends for multiple months
+     */
+    async getFinancialTrends(months = 6) {
+        try {
+            const trends = [];
+            const now = new Date();
+
+            for (let i = months - 1; i >= 0; i--) {
+                const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const year = date.getFullYear();
+                const month = date.getMonth() + 1;
+
+                const summary = await this.getMonthlySummary(year, month);
+
+                // Calculate balance at end of this month
+                const monthEnd = new Date(year, month, 0);
+                const transactionsUntilMonth = this.data.transactions.filter(t =>
+                    new Date(t.date) <= monthEnd
+                );
+                const balance = this.data.settings.startingBalance +
+                    transactionsUntilMonth.reduce((sum, t) => sum + t.amount, 0);
+
+                trends.push({
+                    month: date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+                    income: summary.income,
+                    expenses: summary.expenses,
+                    balance: balance
+                });
+            }
+
+            return trends;
+        } catch (error) {
+            console.error('Failed to get financial trends:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Get spending by category
+     */
+    async getSpendingByCategory(startDate, endDate) {
+        try {
+            const transactions = await this.getTransactions({
+                startDate,
+                endDate,
+                type: 'expense'
+            });
+
+            const categoryTotals = {};
+
+            transactions.forEach(t => {
+                const category = t.category || 'other';
+                const amount = Math.abs(t.amount);
+
+                if (!categoryTotals[category]) {
+                    categoryTotals[category] = 0;
+                }
+                categoryTotals[category] += amount;
+            });
+
+            // Convert to array and sort by amount
+            return Object.entries(categoryTotals)
+                .map(([category, amount]) => ({ category, amount }))
+                .sort((a, b) => b.amount - a.amount);
+        } catch (error) {
+            console.error('Failed to get spending by category:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Add a new goal
+     */
+    async addGoal(goalData) {
+        try {
+            const goal = {
+                id: this.goalIdCounter++,
+                name: goalData.name,
+                type: goalData.type || goalData.category || 'other',
+                targetAmount: parseFloat(goalData.targetAmount),
+                currentAmount: parseFloat(goalData.currentAmount || 0),
+                deadline: goalData.deadline || goalData.targetDate,
+                priority: goalData.priority || 'medium',
+                category: goalData.category || goalData.type || 'other',
+                description: goalData.description || goalData.notes || '',
+                notes: goalData.notes || goalData.description || '',
+                isCompleted: false,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+
+            this.data.goals.push(goal);
+            console.log('Goal added successfully:', goal);
+            return goal;
+        } catch (error) {
+            console.error('Failed to add goal:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Update a goal
+     */
+    async updateGoal(id, updates) {
+        try {
+            // Convert ID to number if it's a string
+            const numericId = typeof id === 'string' ? parseInt(id) : id;
+
+            const index = this.data.goals.findIndex(g => g.id === numericId);
+            if (index === -1) {
+                console.error('Goal not found with ID:', id);
+                throw new Error('Goal not found');
+            }
+
+            // Check if goal is completed after update
+            const goal = this.data.goals[index];
+            const newCurrentAmount = updates.currentAmount !== undefined ?
+                parseFloat(updates.currentAmount) : goal.currentAmount;
+
+            const isCompleted = newCurrentAmount >= goal.targetAmount;
+
+            this.data.goals[index] = {
+                ...this.data.goals[index],
+                ...updates,
+                isCompleted: isCompleted,
+                updatedAt: new Date().toISOString()
+            };
+
+            console.log('Goal updated:', this.data.goals[index]);
+            return this.data.goals[index];
+        } catch (error) {
+            console.error('Failed to update goal:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Delete a goal
+     */
+    async deleteGoal(id) {
+        try {
+            // Convert ID to number if it's a string
+            const numericId = typeof id === 'string' ? parseInt(id) : id;
+
+            const index = this.data.goals.findIndex(g => g.id === numericId);
+            if (index === -1) {
+                console.error('Goal not found with ID:', id, 'Numeric ID:', numericId);
+                throw new Error('Goal not found');
+            }
+
+            const deleted = this.data.goals[index];
+            this.data.goals.splice(index, 1);
+
+            console.log('Goal deleted:', deleted);
+            return true;
+        } catch (error) {
+            console.error('Failed to delete goal:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Get all goals
+     */
+    async getGoals() {
+        return [...this.data.goals];
+    }
+
+    /**
+     * Add a new routine
+     */
+    async addRoutine(routineData) {
+        try {
+            // Parse amount and ensure correct sign based on type
+            let amount = parseFloat(routineData.amount);
+            const type = routineData.type || (amount > 0 ? 'income' : 'expense');
+
+            // CRITICAL: Ensure expenses are negative and income is positive
+            if (type === 'expense' && amount > 0) {
+                amount = -amount;
+            } else if (type === 'income' && amount < 0) {
+                amount = Math.abs(amount);
+            }
+
+            const routine = {
+                id: this.routineIdCounter++,
+                name: routineData.name,
+                amount: amount,
+                type: type,
+                frequency: routineData.frequency || 'monthly',
+                category: routineData.category || 'other',
+
+                // Installment-specific fields
+                totalInstallments: routineData.totalInstallments || 1,
+                installmentsRemaining: routineData.installmentsRemaining || routineData.totalInstallments || 1,
+                lastPaymentDate: routineData.lastPaymentDate || null,
+
+                // Legacy fields for compatibility
+                nextDate: routineData.nextDate || routineData.startDate || new Date().toISOString().split('T')[0],
+                startDate: routineData.startDate || routineData.nextDate || new Date().toISOString().split('T')[0],
+                endDate: routineData.endDate || null,
+                isActive: routineData.isActive !== undefined ? routineData.isActive : true,
+                active: routineData.active !== undefined ? routineData.active : true,
+                description: routineData.description || routineData.notes || '',
+                notes: routineData.notes || routineData.description || '',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+
+            this.data.routines.push(routine);
+            console.log('Installment added successfully:', routine);
+            return routine;
+        } catch (error) {
+            console.error('Failed to add routine:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Update a routine
+     */
+    async updateRoutine(id, updates) {
+        try {
+            // Convert ID to number if it's a string
+            const numericId = typeof id === 'string' ? parseInt(id) : id;
+
+            const index = this.data.routines.findIndex(r => r.id === numericId);
+            if (index === -1) {
+                console.error('Routine not found with ID:', id);
+                throw new Error('Routine not found');
+            }
+
+            this.data.routines[index] = {
+                ...this.data.routines[index],
+                ...updates,
+                updatedAt: new Date().toISOString()
+            };
+
+            console.log('Routine updated:', this.data.routines[index]);
+            return this.data.routines[index];
+        } catch (error) {
+            console.error('Failed to update routine:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Delete a routine
+     */
+    async deleteRoutine(id) {
+        try {
+            // Convert ID to number if it's a string
+            const numericId = typeof id === 'string' ? parseInt(id) : id;
+
+            const index = this.data.routines.findIndex(r => r.id === numericId);
+            if (index === -1) {
+                console.error('Routine not found with ID:', id, 'Numeric ID:', numericId);
+                throw new Error('Routine not found');
+            }
+
+            const deleted = this.data.routines[index];
+            this.data.routines.splice(index, 1);
+
+            console.log('Routine deleted:', deleted);
+            return true;
+        } catch (error) {
+            console.error('Failed to delete routine:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Get all routines
+     */
+    async getRoutines() {
+        return [...this.data.routines];
     }
 
     /**
      * Export all data
      */
-    static async exportAllData() {
-        const storage = new Storage();
-
+    async exportAllData() {
         return {
-            version: CONFIG.VERSION,
+            version: '2.0.0',
             exportDate: new Date().toISOString(),
-            data: { ...storage.data }
+            data: {
+                transactions: this.data.transactions,
+                goals: this.data.goals,
+                routines: this.data.routines,
+                settings: this.data.settings
+            }
         };
     }
 
     /**
      * Import all data
      */
-    static async importAllData(importData) {
-        const storage = new Storage();
+    async importAllData(importData) {
+        try {
+            if (!importData.data) {
+                throw new Error('Invalid import data format');
+            }
 
-        // Validate import data
-        if (!importData.data) {
-            throw new Error('Invalid import data format');
+            this.data = {
+                transactions: importData.data.transactions || [],
+                goals: importData.data.goals || [],
+                routines: importData.data.routines || [],
+                settings: importData.data.settings || {},
+                initialized: true
+            };
+
+            // Update ID counters
+            if (this.data.transactions.length > 0) {
+                this.transactionIdCounter = Math.max(...this.data.transactions.map(t => t.id)) + 1;
+            }
+            if (this.data.goals.length > 0) {
+                this.goalIdCounter = Math.max(...this.data.goals.map(g => g.id)) + 1;
+            }
+            if (this.data.routines.length > 0) {
+                this.routineIdCounter = Math.max(...this.data.routines.map(r => r.id)) + 1;
+            }
+
+            return true;
+        } catch (error) {
+            console.error('Failed to import data:', error);
+            throw error;
         }
-
-        // Backup current data
-        await storage.createBackup();
-
-        // Import data
-        storage.data = { ...storage.data, ...importData.data };
-
-        // Validate and clean
-        await storage.validateAndCleanData();
-
-        // Save all data
-        storage.saveToStorage(STORAGE_KEYS.TRANSACTIONS, storage.data.transactions);
-        storage.saveToStorage(STORAGE_KEYS.GOALS, storage.data.goals);
-        storage.saveToStorage(STORAGE_KEYS.ROUTINES, storage.data.routines);
-        storage.saveToStorage(STORAGE_KEYS.SETTINGS, storage.data.settings);
-
-        return true;
     }
 
     /**
      * Clear all data
      */
-    static async clearAllData() {
-        const storage = new Storage();
-
-        // Create backup before clearing
-        await storage.createBackup();
-
-        // Clear data
-        storage.data = {
+    async clearAllData() {
+        this.data = {
             transactions: [],
             goals: [],
             routines: [],
-            accounts: [],
-            budgets: [],
-            settings: { ...DEFAULT_SETTINGS }
+            settings: {
+                currency: 'EUR',
+                currencySymbol: '€',
+                dateFormat: 'DD/MM/YYYY',
+                startingBalance: 0
+            },
+            initialized: true
         };
 
-        // Clear localStorage
-        Object.values(STORAGE_KEYS).forEach(key => {
-            localStorage.removeItem(key);
-        });
+        this.transactionIdCounter = 1;
+        this.goalIdCounter = 1;
+        this.routineIdCounter = 1;
 
         return true;
-    }
-
-    // ===============================
-    // MAINTENANCE
-    // ===============================
-
-    /**
-     * Run database migrations
-     */
-    async runMigrations() {
-        const currentVersion = localStorage.getItem(STORAGE_KEYS.VERSION) || '1.0.0';
-
-        if (currentVersion !== CONFIG.VERSION) {
-            console.log(`Migrating from ${currentVersion} to ${CONFIG.VERSION}`);
-
-            // Add migration logic here as needed
-
-            localStorage.setItem(STORAGE_KEYS.VERSION, CONFIG.VERSION);
-        }
-    }
-
-    /**
-     * Clean up old backups
-     */
-    cleanupOldBackups() {
-        try {
-            const backups = this.loadFromStorage(STORAGE_KEYS.BACKUPS, []);
-            const recentBackups = backups.slice(-3); // Keep only 3 most recent
-
-            this.saveToStorage(STORAGE_KEYS.BACKUPS, recentBackups);
-        } catch (error) {
-            console.error('Failed to cleanup backups:', error);
-        }
-    }
-
-    /**
-     * Clean up session data
-     */
-    cleanupSessionData() {
-        try {
-            sessionStorage.removeItem('financepro-events');
-            sessionStorage.removeItem('financepro-errors');
-            sessionStorage.removeItem('financepro-temp');
-        } catch (error) {
-            console.error('Failed to cleanup session data:', error);
-        }
     }
 
     /**
      * Get application statistics
      */
-    static async getApplicationStats() {
-        const storage = new Storage();
-
+    async getApplicationStats() {
         return {
-            transactions: storage.data.transactions.length,
-            goals: storage.data.goals.length,
-            routines: storage.data.routines.length,
-            totalBalance: await this.getTotalBalance(),
-            storageUsed: JSON.stringify(storage.data).length,
-            lastUpdated: new Date().toISOString()
+            totalTransactions: this.data.transactions.length,
+            totalGoals: this.data.goals.length,
+            totalRoutines: this.data.routines.length,
+            currentBalance: this.getBalance(),
+            oldestTransaction: this.data.transactions.length > 0
+                ? this.data.transactions[this.data.transactions.length - 1].date
+                : null,
+            newestTransaction: this.data.transactions.length > 0
+                ? this.data.transactions[0].date
+                : null
         };
     }
 }
 
-// Export for module systems
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = Storage;
-}
+// Create global Storage instance
+const Storage = new StorageManager();
+
+// Make it available globally
+window.Storage = Storage;

@@ -1,92 +1,86 @@
 /**
- * FinancePro - Routines Component
- * Manages recurring transactions and automated financial routines
+ * FinancePro - Installments Component (Previously Routines)
+ * Manages installment payments for purchases and debts
  * 
- * @version 2.0.0
+ * @version 3.0.0
+ * NEW: Installment payment system
  */
 
 class Routines {
     constructor() {
         this.routines = [];
         this.isInitialized = false;
-        this.checkInterval = null;
     }
 
-    /**
-     * Initialize routines component
-     */
     async init() {
         try {
             await this.loadRoutines();
             this.setupEventListeners();
             await this.renderRoutinesInterface();
-            this.startRoutineChecker();
 
             this.isInitialized = true;
-            console.log('Routines component initialized');
+            console.log('Installments component initialized');
         } catch (error) {
-            console.error('Failed to initialize Routines:', error);
+            console.error('Failed to initialize Installments:', error);
             throw error;
         }
     }
 
-    /**
-     * Load routines from storage
-     */
     async loadRoutines() {
         try {
             this.routines = await Storage.getRoutines();
-            console.log('Loaded routines:', this.routines.length);
+            console.log('Loaded installments:', this.routines.length);
         } catch (error) {
-            console.error('Failed to load routines:', error);
+            console.error('Failed to load installments:', error);
             this.routines = [];
         }
     }
 
-    /**
-     * Setup event listeners
-     */
     setupEventListeners() {
-        // Add routine buttons (multiple possible buttons)
+        // Use event delegation with closest() for better button detection
         document.addEventListener('click', (e) => {
-            if (e.target.matches('.add-routine-btn') ||
-                e.target.closest('.add-routine-btn') ||
-                e.target.matches('#addRoutineBtn') ||
-                e.target.closest('#addRoutineBtn')) {
+            // Add installment
+            const addBtn = e.target.closest('.add-routine-btn') || e.target.closest('#addRoutineBtn');
+            if (addBtn) {
                 e.preventDefault();
                 this.showAddRoutineModal();
+                return;
             }
-        });
 
-        // Edit routine buttons
-        document.addEventListener('click', (e) => {
-            if (e.target.matches('[data-edit-routine]')) {
-                const routineId = e.target.getAttribute('data-edit-routine');
+            // Pay installment (execute)
+            const executeBtn = e.target.closest('[data-execute-routine]');
+            if (executeBtn) {
+                e.preventDefault();
+                const routineId = parseInt(executeBtn.getAttribute('data-execute-routine'));
+                this.payInstallment(routineId);
+                return;
+            }
+
+            // Edit installment
+            const editBtn = e.target.closest('[data-edit-routine]');
+            if (editBtn) {
+                e.preventDefault();
+                const routineId = parseInt(editBtn.getAttribute('data-edit-routine'));
                 this.editRoutine(routineId);
+                return;
             }
-        });
 
-        // Delete routine buttons
-        document.addEventListener('click', (e) => {
-            if (e.target.matches('[data-delete-routine]')) {
-                const routineId = e.target.getAttribute('data-delete-routine');
+            // Delete installment
+            const deleteBtn = e.target.closest('[data-delete-routine]');
+            if (deleteBtn) {
+                e.preventDefault();
+                const routineId = parseInt(deleteBtn.getAttribute('data-delete-routine'));
                 this.deleteRoutine(routineId);
+                return;
             }
-        });
 
-        // Toggle routine active/inactive
-        document.addEventListener('click', (e) => {
-            if (e.target.matches('[data-toggle-routine]')) {
-                const routineId = e.target.getAttribute('data-toggle-routine');
+            // Toggle active/paused
+            const toggleBtn = e.target.closest('[data-toggle-routine]');
+            if (toggleBtn) {
+                e.preventDefault();
+                const routineId = parseInt(toggleBtn.getAttribute('data-toggle-routine'));
                 this.toggleRoutine(routineId);
-            }
-        });
-
-        // Execute routine manually
-        document.addEventListener('click', (e) => {
-            if (e.target.matches('[data-execute-routine]')) {
-                const routineId = e.target.getAttribute('data-execute-routine');
-                this.executeRoutine(routineId);
+                return;
             }
         });
 
@@ -99,88 +93,61 @@ class Routines {
         });
     }
 
-    /**
-     * Render routines interface
-     */
     async renderRoutinesInterface() {
         const container = document.getElementById('routines');
         if (!container) return;
 
-        const upcomingExecutions = this.getUpcomingExecutions();
+        const activeInstallments = this.routines.filter(r => r.isActive && r.installmentsRemaining > 0);
+        const upcomingPayments = this.getUpcomingPayments();
+        const monthlyTotal = this.calculateMonthlyTotal();
 
         container.innerHTML = `
             <div class="routines-container">
-                <!-- Routines Header -->
                 <div class="routines-header">
                     <div class="header-content">
-                        <h2>Financial Routines</h2>
-                        <p>Automate recurring transactions and build healthy financial habits</p>
+                        <h2>Installment Payments</h2>
+                        <p>Track purchases and debts split into monthly payments</p>
                     </div>
                     <button class="btn btn-primary" id="addRoutineBtn">
                         <span class="btn-icon plus-icon"></span>
-                        Add Routine
+                        Add Installment
                     </button>
                 </div>
 
-                <!-- Quick Stats -->
                 <div class="routines-stats">
                     <div class="stat-card">
                         <div class="stat-icon active-routines-icon"></div>
                         <div class="stat-content">
-                            <h3>Active Routines</h3>
-                            <div class="stat-value">${this.routines.filter(r => r.isActive).length}</div>
+                            <h3>Active Payments</h3>
+                            <div class="stat-value">${activeInstallments.length}</div>
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon pending-icon"></div>
                         <div class="stat-content">
-                            <h3>Pending Executions</h3>
-                            <div class="stat-value">${upcomingExecutions.length}</div>
+                            <h3>Due This Month</h3>
+                            <div class="stat-value">${upcomingPayments}</div>
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon monthly-impact-icon"></div>
                         <div class="stat-content">
-                            <h3>Monthly Impact</h3>
-                            <div class="stat-value">${Helpers.formatCurrency(this.calculateMonthlyImpact())}</div>
+                            <h3>Monthly Total</h3>
+                            <div class="stat-value">${Helpers.formatCurrency(monthlyTotal)}</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Upcoming Executions -->
-                ${upcomingExecutions.length > 0 ? `
-            < div class="upcoming-section" >
-                    <h3>Upcoming Executions</h3>
-                    <div class="upcoming-list">
-                        ${upcomingExecutions.map(execution => `
-                            <div class="upcoming-item">
-                                <div class="upcoming-info">
-                                    <div class="upcoming-name">${execution.routine.name}</div>
-                                    <div class="upcoming-meta">
-                                        ${Helpers.formatCurrency(execution.routine.amount)} • ${execution.daysUntil === 0 ? 'Today' : `${execution.daysUntil} days`}
-                                    </div>
-                                </div >
-            <button class="btn btn-sm btn-primary" data-execute-routine="${execution.routine.id}">
-                Execute Now
-            </button>
-                            </div >
-            `).join('')}
-                    </div>
-                </div>
-                ` : ''
-            }
-
-                
-    <div class="routines-section">
-        <h3>All Routines</h3>
-        ${this.routines.length === 0 ? `
+                <div class="routines-section">
+                    <h3>All Installments</h3>
+                    ${this.routines.length === 0 ? `
                         <div class="empty-state">
                             <div class="empty-icon routines-empty-icon"></div>
-                            <h4>No routines yet</h4>
-                            <p>Create your first routine to automate recurring transactions</p>
+                            <h4>No installments yet</h4>
+                            <p>Add your first installment to track payments over time</p>
                             <button class="btn btn-primary add-routine-btn">
                                 <span class="btn-icon plus-icon"></span>
-                                Add Your First Routine
+                                Add Your First Installment
                             </button>
                         </div>
                     ` : `
@@ -188,137 +155,59 @@ class Routines {
                             ${this.routines.map(routine => this.renderRoutineCard(routine)).join('')}
                         </div>
                     `}
-    </div>
-            </div >
-
-           
-    <div class="modal-overlay" id="routineModalOverlay" style="display: none;">
-        <div class="modal routine-modal">
-            <div class="modal-header">
-                <h3 id="routineModalTitle">Add New Routine</h3>
-                <button class="modal-close" id="closeRoutineModal">×</button>
+                </div>
             </div>
-            <div class="modal-content">
-                <form id="routineForm">
-                    <input type="hidden" id="routineId" name="id">
-
-                        <div class="form-group">
-                            <label for="routineName">Routine Name</label>
-                            <input type="text" id="routineName" name="name" class="form-control" required
-                                placeholder="e.g., Monthly Salary, Weekly Groceries">
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="routineAmount">Amount</label>
-                                <input type="number" id="routineAmount" name="amount" class="form-control"
-                                    step="0.01" required placeholder="0.00">
-                            </div>
-                            <div class="form-group">
-                                <label for="routineType">Type</label>
-                                <select id="routineType" name="type" class="form-control" required>
-                                    <option value="">Select type</option>
-                                    <option value="income">Income</option>
-                                    <option value="expense">Expense</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="routineFrequency">Frequency</label>
-                                <select id="routineFrequency" name="frequency" class="form-control" required>
-                                    <option value="">Select frequency</option>
-                                    <option value="daily">Daily</option>
-                                    <option value="weekly">Weekly</option>
-                                    <option value="biweekly">Bi-weekly</option>
-                                    <option value="monthly">Monthly</option>
-                                    <option value="quarterly">Quarterly</option>
-                                    <option value="yearly">Yearly</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="routineCategory">Category</label>
-                                <select id="routineCategory" name="category" class="form-control" required>
-                                    <option value="">Select category</option>
-                                    <!-- Categories will be populated dynamically -->
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="routineNextDate">Next Execution Date</label>
-                            <input type="date" id="routineNextDate" name="nextDate" class="form-control" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="routineDescription">Description (Optional)</label>
-                            <textarea id="routineDescription" name="description" class="form-control"
-                                rows="2" placeholder="Additional notes about this routine"></textarea>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="routineActive" name="isActive" checked>
-                                    <span class="checkmark"></span>
-                                    Active (routine will execute automatically)
-                            </label>
-                        </div>
-
-                        <div class="modal-actions">
-                            <button type="button" class="btn btn-secondary" id="closeRoutineModal">Cancel</button>
-                            <button type="submit" class="btn btn-primary">
-                                <span class="btn-icon save-icon"></span>
-                                Save Routine
-                            </button>
-                        </div>
-                </form>
-            </div>
-        </div>
-    </div>
-`;
-
-        // Setup modal close handlers
-        document.getElementById('closeRoutineModal').addEventListener('click', () => {
-            window.app.hideModal();
-        });
-
-        document.getElementById('routineModalOverlay').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) {
-                this.hideRoutineModal();
-            }
-        });
-
-        // Populate categories
-        this.populateCategories();
+        `;
     }
 
-    /**
-     * Render individual routine card
-     */
     renderRoutineCard(routine) {
-        const nextExecution = new Date(routine.nextDate);
-        const today = new Date();
-        const daysUntil = Math.ceil((nextExecution - today) / (1000 * 60 * 60 * 24));
-        const isOverdue = daysUntil < 0;
-        const isDue = daysUntil === 0;
+        const totalInstallments = routine.totalInstallments || routine.installmentsRemaining || 1;
+        const paid = totalInstallments - routine.installmentsRemaining;
+        const progress = (paid / totalInstallments) * 100;
+        const isComplete = routine.installmentsRemaining <= 0;
+        const monthlyAmount = routine.amount; // Amount per month
+        const totalAmount = monthlyAmount * totalInstallments;
+        const remaining = monthlyAmount * routine.installmentsRemaining;
+
+        // Calculate if payment is overdue
+        const now = new Date();
+        const lastPayment = routine.lastPaymentDate ? new Date(routine.lastPaymentDate) : new Date(routine.createdAt);
+        const daysSinceLastPayment = Math.floor((now - lastPayment) / (1000 * 60 * 60 * 24));
+        const isOverdue = daysSinceLastPayment > 30 && !isComplete;
 
         return `
-    < div class="routine-card ${routine.isActive ? 'active' : 'inactive'}" >
+            <div class="routine-card ${routine.isActive ? 'active' : 'inactive'} ${isComplete ? 'completed' : ''}">
                 <div class="routine-header">
                     <div class="routine-info">
                         <h4 class="routine-name">${routine.name}</h4>
                         <div class="routine-meta">
-                            <span class="routine-amount ${routine.amount > 0 ? 'positive' : 'negative'}">
-                                ${Helpers.formatCurrency(Math.abs(routine.amount))}
+                            <span class="routine-amount ${routine.type === 'income' ? 'positive' : 'negative'}">
+                                ${Helpers.formatCurrency(monthlyAmount)}/month
                             </span>
-                            <span class="routine-frequency">${this.formatFrequency(routine.frequency)}</span>
+                            <span class="routine-total">Total: ${Helpers.formatCurrency(totalAmount)}</span>
                         </div>
                     </div>
                     <div class="routine-status">
-                        <span class="status-badge ${routine.isActive ? 'active' : 'inactive'}">
-                            ${routine.isActive ? 'Active' : 'Inactive'}
-                        </span>
+                        ${isComplete ?
+                '<span class="status-badge completed">Completed</span>' :
+                `<span class="status-badge ${routine.isActive ? 'active' : 'inactive'}">
+                                ${routine.isActive ? 'Active' : 'Paused'}
+                            </span>`
+            }
+                    </div>
+                </div>
+
+                <div class="installment-progress">
+                    <div class="progress-info">
+                        <span>${paid} of ${totalInstallments} payments made</span>
+                        <span>${Helpers.formatCurrency(remaining)} remaining</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill ${isComplete ? 'completed' : ''}" 
+                                 style="width: ${progress}%"></div>
+                        </div>
+                        <span class="progress-percentage">${progress.toFixed(0)}%</span>
                     </div>
                 </div>
 
@@ -328,11 +217,9 @@ class Routines {
                         <span class="detail-value">${this.getCategoryName(routine.category)}</span>
                     </div>
                     <div class="detail-item">
-                        <span class="detail-label">Next execution:</span>
-                        <span class="detail-value ${isOverdue ? 'overdue' : isDue ? 'due' : ''}">
-                            ${isOverdue ? `Overdue by ${Math.abs(daysUntil)} days` :
-                isDue ? 'Due today' :
-                    `In ${daysUntil} days (${Helpers.formatDate(routine.nextDate, 'short')})`}
+                        <span class="detail-label">Payments left:</span>
+                        <span class="detail-value ${isOverdue ? 'overdue' : ''}">
+                            ${routine.installmentsRemaining} ${isOverdue ? '(Overdue)' : ''}
                         </span>
                     </div>
                     ${routine.description ? `
@@ -341,152 +228,143 @@ class Routines {
                             <span class="detail-value">${routine.description}</span>
                         </div>
                     ` : ''}
+                    ${routine.lastPaymentDate ? `
+                        <div class="detail-item">
+                            <span class="detail-label">Last payment:</span>
+                            <span class="detail-value">${Helpers.formatDate(routine.lastPaymentDate, 'relative')}</span>
+                        </div>
+                    ` : ''}
                 </div>
 
                 <div class="routine-actions">
-                    <button class="btn btn-sm btn-outline" data-toggle-routine="${routine.id}">
-                        <span class="btn-icon ${routine.isActive ? 'pause' : 'play'}-icon"></span>
-                        ${routine.isActive ? 'Pause' : 'Activate'}
-                    </button>
-                    <button class="btn btn-sm btn-outline" data-edit-routine="${routine.id}">
-                        <span class="btn-icon edit-icon"></span>
-                        Edit
-                    </button>
-                    <button class="btn btn-sm btn-primary" data-execute-routine="${routine.id}">
-                        <span class="btn-icon play-icon"></span>
-                        Execute
-                    </button>
+                    ${!isComplete ? `
+                        <button class="btn btn-sm btn-outline" data-toggle-routine="${routine.id}">
+                            <span class="btn-icon ${routine.isActive ? 'pause' : 'play'}-icon"></span>
+                            ${routine.isActive ? 'Pause' : 'Resume'}
+                        </button>
+                        <button class="btn btn-sm btn-outline" data-edit-routine="${routine.id}">
+                            <span class="btn-icon edit-icon"></span>
+                            Edit
+                        </button>
+                        <button class="btn btn-sm btn-primary" data-execute-routine="${routine.id}">
+                            <span class="btn-icon play-icon"></span>
+                            Pay Now
+                        </button>
+                    ` : ''}
                     <button class="btn btn-sm btn-danger" data-delete-routine="${routine.id}">
                         <span class="btn-icon trash-icon"></span>
                         Delete
                     </button>
                 </div>
-            </div >
-    `;
+            </div>
+        `;
     }
 
-    /**
-     * Show add routine modal
-     */
-    /**
- * Show add routine modal using existing modal system
- */
     showAddRoutineModal() {
         const modalOverlay = document.getElementById('modalOverlay');
         const modal = document.getElementById('quickAddModal');
 
         if (modalOverlay && modal) {
-            // Update modal header
             const modalHeader = modal.querySelector('.modal-header h3');
             if (modalHeader) {
-                modalHeader.textContent = 'Add New Routine';
+                modalHeader.textContent = 'Add New Installment';
             }
 
-            // Update modal content with routine form
             const modalContent = modal.querySelector('.modal-content');
             if (modalContent) {
                 modalContent.innerHTML = this.generateRoutineFormHTML();
                 this.setupRoutineForm();
             }
 
-            // Show modal using existing system
             modalOverlay.classList.add('active');
 
-            // Focus first input
             setTimeout(() => {
                 const firstInput = modal.querySelector('input, select');
-                if (firstInput) {
-                    firstInput.focus();
-                }
+                if (firstInput) firstInput.focus();
             }, 150);
         }
     }
 
-    /**
- * Generate routine form HTML for the existing modal system
- */
     generateRoutineFormHTML() {
         return `
-    < form id = "routineForm" class="form" >
-        <input type="hidden" id="routineId" name="id">
+            <form id="routineForm" class="form">
+                <input type="hidden" id="routineId" name="id">
 
-            <div class="form-group">
-                <label class="form-label">Routine Name</label>
-                <input type="text" id="routineName" name="name" class="form-input" required
-                    placeholder="e.g., Monthly Salary, Weekly Groceries">
-            </div>
-
-            <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Amount</label>
-                    <input type="number" id="routineAmount" name="amount" class="form-input"
-                        step="0.01" required placeholder="0.00">
+                    <label class="form-label">What are you paying for?</label>
+                    <input type="text" id="routineName" name="name" class="form-input" required
+                        placeholder="e.g., New Phone, Laptop, Car Repair">
                 </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Total Amount (€)</label>
+                        <input type="number" id="routineTotalAmount" class="form-input"
+                            step="0.01" required placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Number of Months</label>
+                        <input type="number" id="routineMonths" class="form-input"
+                            min="2" max="60" required placeholder="3">
+                    </div>
+                </div>
+
+                <div class="form-group installment-preview" id="installmentPreview" style="display: none;">
+                    <div class="preview-box">
+                        <strong>Monthly Payment:</strong>
+                        <span id="monthlyPayment" class="amount-large">0.00€</span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Type</label>
+                        <select id="routineType" name="type" class="form-select" required>
+                            <option value="expense" selected>Expense (I'm paying)</option>
+                            <option value="income">Income (I'm receiving)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select id="routineCategory" name="category" class="form-select" required>
+                            <option value="">Select category</option>
+                            <option value="shopping">Shopping</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="transport">Transportation</option>
+                            <option value="home">Home & Furniture</option>
+                            <option value="healthcare">Healthcare</option>
+                            <option value="education">Education</option>
+                            <option value="debt">Debt Payment</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="form-group">
-                    <label class="form-label">Type</label>
-                    <select id="routineType" name="type" class="form-select" required>
-                        <option value="">Select type</option>
-                        <option value="income">Income</option>
-                        <option value="expense">Expense</option>
-                    </select>
+                    <label class="form-label">Description (Optional)</label>
+                    <textarea id="routineDescription" name="description" class="form-input"
+                        rows="2" placeholder="Additional details about this payment plan"></textarea>
                 </div>
-            </div>
 
-            <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Frequency</label>
-                    <select id="routineFrequency" name="frequency" class="form-select" required>
-                        <option value="">Select frequency</option>
-                        <option value="daily">Daily</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="biweekly">Bi-weekly</option>
-                        <option value="monthly">Monthly</option>
-                        <option value="quarterly">Quarterly</option>
-                        <option value="yearly">Yearly</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Category</label>
-                    <select id="routineCategory" name="category" class="form-select" required>
-                        <option value="">Select category</option>
-                        <!-- Categories will be populated dynamically -->
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Next Execution Date</label>
-                <input type="date" id="routineNextDate" name="nextDate" class="form-input" required>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Description (Optional)</label>
-                <textarea id="routineDescription" name="description" class="form-input"
-                    rows="2" placeholder="Additional notes about this routine"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label class="checkbox-label">
-                    <input type="checkbox" id="routineActive" name="isActive" checked>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="routineActive" name="isActive" checked>
                         <span class="checkmark"></span>
-                        Active (routine will execute automatically)
-                </label>
-            </div>
+                        Active (ready to make payments)
+                    </label>
+                </div>
 
-            <div class="form-actions">
-                <button type="button" class="btn btn-secondary" onclick="app.hideModal()">Cancel</button>
-                <button type="submit" class="btn btn-primary">
-                    <span class="btn-icon save-icon"></span>
-                    Save Routine
-                </button>
-            </div>
-        </form>
-`;
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary btn-lg" onclick="app.hideModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <span class="btn-icon save-icon"></span>
+                        Create Installment
+                    </button>
+                </div>
+            </form>
+        `;
     }
 
-    /**
-     * Setup routine form functionality
-     */
     setupRoutineForm() {
         const form = document.getElementById('routineForm');
         if (form) {
@@ -496,6 +374,28 @@ class Routines {
             });
         }
 
+        // Calculate monthly payment on the fly
+        const totalAmountInput = document.getElementById('routineTotalAmount');
+        const monthsInput = document.getElementById('routineMonths');
+        const preview = document.getElementById('installmentPreview');
+        const monthlyPaymentSpan = document.getElementById('monthlyPayment');
+
+        const updatePreview = () => {
+            const total = parseFloat(totalAmountInput.value) || 0;
+            const months = parseInt(monthsInput.value) || 0;
+
+            if (total > 0 && months > 0) {
+                const monthly = total / months;
+                monthlyPaymentSpan.textContent = Helpers.formatCurrency(monthly);
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        };
+
+        totalAmountInput.addEventListener('input', updatePreview);
+        monthsInput.addEventListener('input', updatePreview);
+
         // Update categories when type changes
         const typeSelect = document.getElementById('routineType');
         if (typeSelect) {
@@ -503,457 +403,256 @@ class Routines {
                 this.updateRoutineCategories(e.target.value);
             });
         }
-
-        // Set default next date to today
-        const nextDateInput = document.getElementById('routineNextDate');
-        if (nextDateInput && !nextDateInput.value) {
-            nextDateInput.value = new Date().toISOString().split('T')[0];
-        }
-
-        // Populate initial categories
-        this.updateRoutineCategories('expense'); // Default to expense
     }
 
-    /**
-     * Update category options based on transaction type
-     */
     updateRoutineCategories(type) {
         const categorySelect = document.getElementById('routineCategory');
         if (!categorySelect) return;
 
         categorySelect.innerHTML = '<option value="">Select category</option>';
 
+        let categories = [];
+
         if (type === 'income') {
-            const incomeCategories = [
-                { id: 'salary', name: 'Salary' },
-                { id: 'freelance', name: 'Freelance' },
-                { id: 'investment', name: 'Investment' },
-                { id: 'business', name: 'Business' },
+            categories = [
+                { id: 'salary', name: 'Salary Advance' },
+                { id: 'loan', name: 'Loan Payment Received' },
+                { id: 'refund', name: 'Refund' },
                 { id: 'other-income', name: 'Other Income' }
             ];
-
-            incomeCategories.forEach(cat => {
-                const option = document.createElement('option');
-                option.value = cat.id;
-                option.textContent = cat.name;
-                categorySelect.appendChild(option);
-            });
-        } else if (type === 'expense') {
-            const expenseCategories = [
-                { id: 'food', name: 'Food & Dining' },
-                { id: 'transport', name: 'Transportation' },
+        } else {
+            categories = [
                 { id: 'shopping', name: 'Shopping' },
-                { id: 'entertainment', name: 'Entertainment' },
-                { id: 'bills', name: 'Bills & Utilities' },
+                { id: 'electronics', name: 'Electronics' },
+                { id: 'transport', name: 'Transportation' },
+                { id: 'home', name: 'Home & Furniture' },
                 { id: 'healthcare', name: 'Healthcare' },
                 { id: 'education', name: 'Education' },
-                { id: 'travel', name: 'Travel' },
+                { id: 'debt', name: 'Debt Payment' },
                 { id: 'other', name: 'Other' }
             ];
-
-            expenseCategories.forEach(cat => {
-                const option = document.createElement('option');
-                option.value = cat.id;
-                option.textContent = cat.name;
-                categorySelect.appendChild(option);
-            });
         }
+
+        categories.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat.id;
+            option.textContent = cat.name;
+            categorySelect.appendChild(option);
+        });
     }
 
-    /**
-     * Hide routine modal using existing modal system
-     */
-    hideRoutineModal() {
-        const modalOverlay = document.getElementById('modalOverlay');
-        if (modalOverlay) {
-            modalOverlay.classList.remove('active');
-        }
-    }
-
-    /**
-     * Hide routine modal
-     */
-    hideRoutineModal() {
-        const modal = document.getElementById('routineModalOverlay');
-        modal.style.display = 'none';
-    }
-
-    /**
-     * Populate category dropdown
-     */
-    populateCategories() {
-        const categorySelect = document.getElementById('routineCategory');
-        const typeSelect = document.getElementById('routineType');
-
-        const updateCategories = () => {
-            const type = typeSelect.value;
-            categorySelect.innerHTML = '<option value="">Select category</option>';
-
-            if (type === 'income') {
-                const incomeCategories = [
-                    { id: 'salary', name: 'Salary' },
-                    { id: 'freelance', name: 'Freelance' },
-                    { id: 'investment', name: 'Investment' },
-                    { id: 'business', name: 'Business' },
-                    { id: 'other-income', name: 'Other Income' }
-                ];
-
-                incomeCategories.forEach(cat => {
-                    const option = document.createElement('option');
-                    option.value = cat.id;
-                    option.textContent = cat.name;
-                    categorySelect.appendChild(option);
-                });
-            } else if (type === 'expense') {
-                const expenseCategories = [
-                    { id: 'food', name: 'Food & Dining' },
-                    { id: 'transport', name: 'Transportation' },
-                    { id: 'shopping', name: 'Shopping' },
-                    { id: 'entertainment', name: 'Entertainment' },
-                    { id: 'bills', name: 'Bills & Utilities' },
-                    { id: 'healthcare', name: 'Healthcare' },
-                    { id: 'education', name: 'Education' },
-                    { id: 'travel', name: 'Travel' },
-                    { id: 'other', name: 'Other' }
-                ];
-
-                expenseCategories.forEach(cat => {
-                    const option = document.createElement('option');
-                    option.value = cat.id;
-                    option.textContent = cat.name;
-                    categorySelect.appendChild(option);
-                });
-            }
-        };
-
-        typeSelect.addEventListener('change', updateCategories);
-    }
-
-    /**
-     * Handle routine form submission
-     */
     async handleRoutineSubmit(form) {
         try {
             const formData = new FormData(form);
+
+            const totalAmount = parseFloat(document.getElementById('routineTotalAmount').value);
+            const months = parseInt(document.getElementById('routineMonths').value);
+            const type = formData.get('type') || 'expense';
+
+            if (!totalAmount || totalAmount <= 0) {
+                throw new Error('Please enter a valid total amount');
+            }
+
+            if (!months || months < 2) {
+                throw new Error('Number of months must be at least 2');
+            }
+
+            const monthlyAmount = totalAmount / months;
+
             const routineData = {
                 name: formData.get('name'),
-                amount: parseFloat(formData.get('amount')),
-                frequency: formData.get('frequency'),
+                amount: monthlyAmount,
+                type: type,
+                totalInstallments: months,
+                installmentsRemaining: months,
                 category: formData.get('category'),
                 description: formData.get('description') || '',
-                nextDate: formData.get('nextDate'),
-                isActive: formData.get('isActive') === 'on'
+                isActive: formData.get('isActive') === 'on',
+                frequency: 'monthly', // Keep for compatibility
+                nextDate: new Date().toISOString().split('T')[0],
+                lastPaymentDate: null
             };
 
-            // Validate required fields
-            if (!routineData.name || !routineData.amount || !routineData.frequency || !routineData.category) {
+            if (!routineData.name || !routineData.category) {
                 throw new Error('Please fill in all required fields');
             }
 
             const routineId = formData.get('id');
-            let savedRoutine;
 
             if (routineId) {
-                // Update existing routine
-                savedRoutine = await Storage.updateRoutine(routineId, routineData);
-                app.showNotification('Routine updated successfully', 'success');
+                await Storage.updateRoutine(routineId, routineData);
+                app.showNotification('Installment updated successfully', 'success');
             } else {
-                // Add new routine
-                savedRoutine = await Storage.addRoutine(routineData);
-                app.showNotification('Routine added successfully', 'success');
+                await Storage.addRoutine(routineData);
+                app.showNotification('Installment created successfully', 'success');
             }
 
-            // Refresh the interface
             await this.refresh();
-            this.hideRoutineModal();
+
+            if (window.app && window.app.hideModal) {
+                window.app.hideModal();
+            }
 
         } catch (error) {
-            console.error('Failed to save routine:', error);
-            app.showNotification('Failed to save routine: ' + error.message, 'danger');
+            console.error('Failed to save installment:', error);
+            app.showNotification('Failed to save: ' + error.message, 'danger');
         }
     }
 
-    /**
-     * Edit routine
-     */
+    async payInstallment(routineId) {
+        const routine = this.routines.find(r => r.id === routineId);
+        if (!routine) return;
+
+        if (routine.installmentsRemaining <= 0) {
+            app.showNotification('This installment is already complete!', 'info');
+            return;
+        }
+
+        if (!confirm(`Pay ${Helpers.formatCurrency(routine.amount)} for "${routine.name}"?`)) {
+            return;
+        }
+
+        try {
+            // Create transaction
+            const transaction = {
+                description: `${routine.name} (${routine.totalInstallments - routine.installmentsRemaining + 1}/${routine.totalInstallments})`,
+                amount: Math.abs(routine.amount),
+                category: routine.category,
+                type: routine.type || 'expense',
+                date: new Date().toISOString().split('T')[0]
+            };
+
+            await Storage.addTransaction(transaction);
+
+            // Update installment
+            const newRemaining = routine.installmentsRemaining - 1;
+            const updates = {
+                installmentsRemaining: newRemaining,
+                lastPaymentDate: new Date().toISOString(),
+                isActive: newRemaining > 0 // Deactivate if complete
+            };
+
+            await Storage.updateRoutine(routineId, updates);
+
+            if (newRemaining === 0) {
+                app.showNotification(`🎉 Congratulations! "${routine.name}" is fully paid!`, 'success', 5000);
+            } else {
+                app.showNotification(`Payment recorded! ${newRemaining} payments remaining`, 'success');
+            }
+
+            await this.refresh();
+
+            if (window.app && window.app.dashboard) {
+                await window.app.dashboard.refresh();
+            }
+            if (window.app) {
+                await window.app.updateHeaderBalance();
+            }
+
+        } catch (error) {
+            console.error('Failed to pay installment:', error);
+            app.showNotification('Failed to process payment: ' + error.message, 'danger');
+        }
+    }
+
     async editRoutine(routineId) {
         const routine = this.routines.find(r => r.id === routineId);
         if (!routine) return;
 
-        const modal = document.getElementById('routineModalOverlay');
-        const title = document.getElementById('routineModalTitle');
-        const form = document.getElementById('routineForm');
+        this.showAddRoutineModal();
 
-        title.textContent = 'Edit Routine';
-
-        // Populate form with routine data
-        document.getElementById('routineId').value = routine.id;
-        document.getElementById('routineName').value = routine.name;
-        document.getElementById('routineAmount').value = Math.abs(routine.amount);
-        document.getElementById('routineType').value = routine.amount > 0 ? 'income' : 'expense';
-        document.getElementById('routineFrequency').value = routine.frequency;
-        document.getElementById('routineCategory').value = routine.category;
-        document.getElementById('routineNextDate').value = routine.nextDate;
-        document.getElementById('routineDescription').value = routine.description || '';
-        document.getElementById('routineActive').checked = routine.isActive;
-
-        // Trigger category update
-        document.getElementById('routineType').dispatchEvent(new Event('change'));
-
-        // Set category after categories are populated
         setTimeout(() => {
-            document.getElementById('routineCategory').value = routine.category;
-        }, 100);
+            const totalAmount = routine.amount * routine.totalInstallments;
 
-        modal.style.display = 'flex';
+            document.getElementById('routineId').value = routine.id;
+            document.getElementById('routineName').value = routine.name;
+            document.getElementById('routineTotalAmount').value = totalAmount;
+            document.getElementById('routineMonths').value = routine.totalInstallments;
+            document.getElementById('routineType').value = routine.type || 'expense';
+            document.getElementById('routineCategory').value = routine.category;
+            document.getElementById('routineDescription').value = routine.description || '';
+            document.getElementById('routineActive').checked = routine.isActive;
+
+            const modalHeader = document.querySelector('#quickAddModal .modal-header h3');
+            if (modalHeader) {
+                modalHeader.textContent = 'Edit Installment';
+            }
+
+            // Trigger preview update
+            document.getElementById('routineTotalAmount').dispatchEvent(new Event('input'));
+        }, 200);
     }
 
-    /**
-     * Delete routine
-     */
     async deleteRoutine(routineId) {
         const routine = this.routines.find(r => r.id === routineId);
         if (!routine) return;
 
-        if (!confirm(`Are you sure you want to delete the routine "${routine.name}" ? `)) {
+        if (!confirm(`Delete "${routine.name}"? This cannot be undone.`)) {
             return;
         }
 
         try {
             await Storage.deleteRoutine(routineId);
-            app.showNotification('Routine deleted successfully', 'success');
+            app.showNotification('Installment deleted', 'info');
             await this.refresh();
         } catch (error) {
-            console.error('Failed to delete routine:', error);
-            app.showNotification('Failed to delete routine: ' + error.message, 'danger');
+            console.error('Failed to delete:', error);
+            app.showNotification('Failed to delete: ' + error.message, 'danger');
         }
     }
 
-    /**
-     * Toggle routine active/inactive
-     */
     async toggleRoutine(routineId) {
         const routine = this.routines.find(r => r.id === routineId);
         if (!routine) return;
 
         try {
-            const updatedRoutine = await Storage.updateRoutine(routineId, {
+            await Storage.updateRoutine(routineId, {
                 isActive: !routine.isActive
             });
 
             app.showNotification(
-                `Routine ${updatedRoutine.isActive ? 'activated' : 'paused'} `,
+                `Installment ${!routine.isActive ? 'resumed' : 'paused'}`,
                 'success'
             );
 
             await this.refresh();
         } catch (error) {
-            console.error('Failed to toggle routine:', error);
-            app.showNotification('Failed to update routine: ' + error.message, 'danger');
+            console.error('Failed to toggle:', error);
+            app.showNotification('Failed to update: ' + error.message, 'danger');
         }
     }
 
-    /**
-     * Execute routine manually
-     */
-    async executeRoutine(routineId) {
-        const routine = this.routines.find(r => r.id === routineId);
-        if (!routine) return;
-
-        try {
-            // Create transaction from routine
-            const transaction = {
-                description: `${routine.name} (Routine)`,
-                amount: routine.amount,
-                category: routine.category,
-                type: routine.amount > 0 ? 'income' : 'expense',
-                date: new Date().toISOString(),
-                tags: ['routine']
-            };
-
-            await Storage.addTransaction(transaction);
-
-            // Update next execution date
-            const nextDate = this.calculateNextDate(routine.nextDate, routine.frequency);
-            await Storage.updateRoutine(routineId, { nextDate });
-
-            app.showNotification(`Routine "${routine.name}" executed successfully`, 'success');
-
-            // Refresh routines and trigger dashboard update
-            await this.refresh();
-            if (window.Dashboard && window.Dashboard.isInitialized) {
-                await window.Dashboard.refresh();
-            }
-
-        } catch (error) {
-            console.error('Failed to execute routine:', error);
-            app.showNotification('Failed to execute routine: ' + error.message, 'danger');
-        }
+    getUpcomingPayments() {
+        return this.routines.filter(r =>
+            r.isActive &&
+            r.installmentsRemaining > 0
+        ).length;
     }
 
-    /**
-     * Start routine checker for automatic execution
-     */
-    startRoutineChecker() {
-        // Check every hour for due routines
-        this.checkInterval = setInterval(() => {
-            this.checkDueRoutines();
-        }, 60 * 60 * 1000);
-
-        // Also check immediately
-        this.checkDueRoutines();
+    calculateMonthlyTotal() {
+        return this.routines
+            .filter(r => r.isActive && r.installmentsRemaining > 0)
+            .reduce((sum, r) => sum + Math.abs(r.amount), 0);
     }
 
-    /**
-     * Check for due routines and execute them
-     */
-    async checkDueRoutines() {
-        const today = new Date().toISOString().split('T')[0];
-
-        for (const routine of this.routines) {
-            if (routine.isActive && routine.nextDate <= today) {
-                console.log(`Routine "${routine.name}" is due for execution`);
-                // Could implement automatic execution here
-                // For now, we'll just log it
-            }
-        }
-    }
-
-    /**
-     * Calculate next execution date based on frequency
-     */
-    calculateNextDate(currentDate, frequency) {
-        const date = new Date(currentDate);
-
-        switch (frequency) {
-            case 'daily':
-                date.setDate(date.getDate() + 1);
-                break;
-            case 'weekly':
-                date.setDate(date.getDate() + 7);
-                break;
-            case 'biweekly':
-                date.setDate(date.getDate() + 14);
-                break;
-            case 'monthly':
-                date.setMonth(date.getMonth() + 1);
-                break;
-            case 'quarterly':
-                date.setMonth(date.getMonth() + 3);
-                break;
-            case 'yearly':
-                date.setFullYear(date.getFullYear() + 1);
-                break;
-            default:
-                date.setDate(date.getDate() + 1);
-        }
-
-        return date.toISOString().split('T')[0];
-    }
-
-    /**
-     * Get upcoming routine executions
-     */
-    getUpcomingExecutions() {
-        const today = new Date();
-        const upcoming = [];
-
-        for (const routine of this.routines) {
-            if (!routine.isActive) continue;
-
-            const nextDate = new Date(routine.nextDate);
-            const daysUntil = Math.ceil((nextDate - today) / (1000 * 60 * 60 * 24));
-
-            if (daysUntil <= 7) { // Show executions within 7 days
-                upcoming.push({
-                    routine,
-                    daysUntil: Math.max(0, daysUntil)
-                });
-            }
-        }
-
-        return upcoming.sort((a, b) => a.daysUntil - b.daysUntil);
-    }
-
-    /**
-     * Calculate monthly financial impact of all routines
-     */
-    calculateMonthlyImpact() {
-        let monthlyImpact = 0;
-
-        for (const routine of this.routines) {
-            if (!routine.isActive) continue;
-
-            const amount = routine.amount;
-
-            switch (routine.frequency) {
-                case 'daily':
-                    monthlyImpact += amount * 30;
-                    break;
-                case 'weekly':
-                    monthlyImpact += amount * 4.33; // Approx weeks per month
-                    break;
-                case 'biweekly':
-                    monthlyImpact += amount * 2.17; // Approx biweeks per month
-                    break;
-                case 'monthly':
-                    monthlyImpact += amount;
-                    break;
-                case 'quarterly':
-                    monthlyImpact += amount / 3;
-                    break;
-                case 'yearly':
-                    monthlyImpact += amount / 12;
-                    break;
-            }
-        }
-
-        return monthlyImpact;
-    }
-
-    /**
-     * Format frequency for display
-     */
-    formatFrequency(frequency) {
-        const frequencies = {
-            'daily': 'Daily',
-            'weekly': 'Weekly',
-            'biweekly': 'Bi-weekly',
-            'monthly': 'Monthly',
-            'quarterly': 'Quarterly',
-            'yearly': 'Yearly'
-        };
-        return frequencies[frequency] || frequency;
-    }
-
-    /**
-     * Get category display name
-     */
     getCategoryName(categoryId) {
         const categories = {
-            // Income categories
-            'salary': 'Salary',
-            'freelance': 'Freelance',
-            'investment': 'Investment',
-            'business': 'Business',
-            'other-income': 'Other Income',
-            // Expense categories
-            'food': 'Food & Dining',
-            'transport': 'Transportation',
             'shopping': 'Shopping',
-            'entertainment': 'Entertainment',
-            'bills': 'Bills & Utilities',
+            'electronics': 'Electronics',
+            'transport': 'Transportation',
+            'home': 'Home & Furniture',
             'healthcare': 'Healthcare',
             'education': 'Education',
-            'travel': 'Travel',
-            'other': 'Other'
+            'debt': 'Debt Payment',
+            'salary': 'Salary Advance',
+            'loan': 'Loan Payment',
+            'refund': 'Refund',
+            'other': 'Other',
+            'other-income': 'Other Income'
         };
         return categories[categoryId] || categoryId;
     }
 
-    /**
-     * Refresh routines interface
-     */
     async refresh() {
         try {
             await this.loadRoutines();
@@ -961,13 +660,10 @@ class Routines {
                 await this.renderRoutinesInterface();
             }
         } catch (error) {
-            console.error('Failed to refresh routines:', error);
+            console.error('Failed to refresh:', error);
         }
     }
 
-    /**
-     * Show routines tab
-     */
     async show() {
         if (!this.isInitialized) {
             await this.init();
@@ -976,42 +672,12 @@ class Routines {
         }
     }
 
-    /**
-     * Hide routines tab
-     */
-    hide() {
-        // Nothing specific needed
-    }
+    hide() { }
 
-    /**
-     * Get component statistics
-     */
-    getStats() {
-        const activeRoutines = this.routines.filter(r => r.isActive);
-        const upcomingExecutions = this.getUpcomingExecutions();
-
-        return {
-            totalRoutines: this.routines.length,
-            activeRoutines: activeRoutines.length,
-            upcomingExecutions: upcomingExecutions.length,
-            monthlyImpact: this.calculateMonthlyImpact()
-        };
-    }
-
-    /**
-     * Cleanup
-     */
     cleanup() {
-        if (this.checkInterval) {
-            clearInterval(this.checkInterval);
-            this.checkInterval = null;
-        }
-
         this.routines = [];
         this.isInitialized = false;
-        console.log('Routines component cleaned up');
     }
 }
 
-// Make Routines available globally
 window.Routines = Routines;

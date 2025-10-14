@@ -110,12 +110,12 @@ class Goals {
                             
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label class="form-label">Target Amount ($)</label>
+                                    <label class="form-label">Target Amount (€)</label>
                                     <input type="number" id="goalTargetAmount" class="form-input" 
                                            placeholder="0.00" step="0.01" required>
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label">Current Amount ($)</label>
+                                <label class="form-label">Current Amount (€)</label>
                                     <input type="number" id="goalCurrentAmount" class="form-input" 
                                            placeholder="0.00" step="0.01" value="0">
                                 </div>
@@ -800,7 +800,7 @@ class Goals {
         if (typeof Helpers !== 'undefined' && Helpers.formatCurrency) {
             return Helpers.formatCurrency(amount);
         }
-        return `$${(amount || 0).toFixed(2)}`;
+        return `€${(amount || 0).toFixed(2)}`;
     }
 
     /**

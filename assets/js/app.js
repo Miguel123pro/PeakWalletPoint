@@ -512,10 +512,19 @@ class FinanceProApp {
     }
 
     /**
-     * Generate category options HTML
-     */
+      * Generate category options HTML
+ */
     generateCategoryOptions() {
-        return CATEGORIES.map(category =>
+        const categories = typeof EXPENSE_CATEGORIES !== 'undefined' ? EXPENSE_CATEGORIES : [
+            { id: 'food', name: 'Food & Dining' },
+            { id: 'transport', name: 'Transportation' },
+            { id: 'shopping', name: 'Shopping' },
+            { id: 'bills', name: 'Bills & Utilities' },
+            { id: 'entertainment', name: 'Entertainment' },
+            { id: 'other', name: 'Other' }
+        ];
+
+        return categories.map(category =>
             `<option value="${category.id}">${category.name}</option>`
         ).join('');
     }
@@ -555,25 +564,39 @@ class FinanceProApp {
     }
 
     /**
-     * Handle quick add form submission
-     */
+    * Handle quick add form submission
+ */
     async handleQuickAdd() {
         try {
-            const form = document.getElementById('quickAddForm');
-            const formData = new FormData(form);
+            const type = document.getElementById('quickType').value;
+            const amountInput = parseFloat(document.getElementById('quickAmount').value);
+            const category = document.getElementById('quickCategory').value;
+            const description = document.getElementById('quickDescription').value.trim();
 
+            // Validate amount
+            if (!amountInput || amountInput <= 0 || isNaN(amountInput)) {
+                this.showNotification('Please enter a valid amount greater than 0', 'danger');
+                return;
+            }
+
+            // Validate description
+            if (!description) {
+                this.showNotification('Please enter a description', 'danger');
+                return;
+            }
+
+            // Create transaction with correct amount sign
+            // CRITICAL: Expenses are negative, income is positive
             const transactionData = {
-                type: document.getElementById('quickType').value,
-                amount: parseFloat(document.getElementById('quickAmount').value),
-                category: document.getElementById('quickCategory').value,
-                description: document.getElementById('quickDescription').value,
+                type: type,
+                amount: type === 'income' ? amountInput : -amountInput,
+                category: category,
+                description: description,
                 date: new Date().toISOString().split('T')[0]
             };
 
-            // Add transaction
-            if (this.transactions) {
-                await this.transactions.addTransaction(transactionData);
-            }
+            // Add transaction directly to storage
+            await Storage.addTransaction(transactionData);
 
             // Hide modal
             this.hideModal();
@@ -581,12 +604,15 @@ class FinanceProApp {
             // Show success notification
             this.showNotification('Transaction added successfully', 'success');
 
-            // Refresh data
+            // Refresh all data
             await this.refreshData();
+
+            // Update header balance immediately
+            await this.updateHeaderBalance();
 
         } catch (error) {
             console.error('Failed to add quick transaction:', error);
-            this.showNotification('Failed to add transaction', 'danger');
+            this.showNotification('Failed to add transaction: ' + error.message, 'danger');
         }
     }
 
@@ -632,7 +658,17 @@ class FinanceProApp {
             await this.loadTabContent(this.currentTab);
 
             // Update header balance
-            this.updateHeaderBalance();
+            await this.updateHeaderBalance();
+
+            // If on dashboard, force refresh
+            if (this.currentTab === 'dashboard' && this.dashboard) {
+                await this.dashboard.refresh(false);
+            }
+
+            // If on transactions, force refresh
+            if (this.currentTab === 'transactions' && this.transactions) {
+                await this.transactions.refresh();
+            }
 
         } catch (error) {
             console.error('Failed to refresh data:', error);
@@ -644,11 +680,19 @@ class FinanceProApp {
      */
     async updateHeaderBalance() {
         try {
-            const balance = await Storage.getTotalBalance();
+            // Get balance from Storage
+            const balance = await Storage.getBalance();
             const headerBalance = document.getElementById('headerBalance');
 
             if (headerBalance) {
-                headerBalance.textContent = Helpers.formatCurrency(balance);
+                // Format the currency properly
+                const formatted = typeof Helpers !== 'undefined' && Helpers.formatCurrency
+                    ? Helpers.formatCurrency(balance)
+                    : `€${balance.toFixed(2)}`;
+
+                headerBalance.textContent = formatted;
+
+                // Add positive/negative class for styling
                 headerBalance.className = `stat-value ${balance >= 0 ? 'positive' : 'negative'}`;
             }
         } catch (error) {

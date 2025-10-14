@@ -76,7 +76,7 @@ class Transactions {
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Amount ($)</label>
+                                <label class="form-label">Amount (€)</label>
                                 <input type="number" id="transactionAmount" class="form-input" 
                                        placeholder="0.00" step="0.01" required>
                             </div>
@@ -264,12 +264,13 @@ class Transactions {
     async addTransaction() {
         try {
             const type = document.getElementById('transactionType').value;
-            const amount = parseFloat(document.getElementById('transactionAmount').value);
+            const amountInput = parseFloat(document.getElementById('transactionAmount').value);
             const category = document.getElementById('transactionCategory').value;
             const description = document.getElementById('transactionDescription').value;
             const date = document.getElementById('transactionDate').value;
 
-            if (!amount || amount <= 0) {
+            // Validation
+            if (!amountInput || amountInput <= 0) {
                 this.showNotification('Please enter a valid amount', 'danger');
                 return;
             }
@@ -279,16 +280,22 @@ class Transactions {
                 return;
             }
 
+            // CRITICAL: Send positive amount and type to Storage
+            // Storage will handle making expenses negative
             const transactionData = {
-                type,
-                amount,
-                category,
+                type: type,                    // 'income' or 'expense'
+                amount: Math.abs(amountInput), // Always positive
+                category: category,
                 description: description.trim(),
-                date
+                date: date
             };
 
-            // Add to storage
+            console.log('Adding transaction:', transactionData);
+
+            // Add to storage - Storage will handle the sign conversion
             const newTransaction = await Storage.addTransaction(transactionData);
+
+            console.log('Transaction added:', newTransaction);
 
             // Update local data
             this.transactions.unshift(newTransaction);
@@ -312,7 +319,7 @@ class Transactions {
 
         } catch (error) {
             console.error('Failed to add transaction:', error);
-            this.showNotification('Failed to add transaction', 'danger');
+            this.showNotification('Failed to add transaction: ' + error.message, 'danger');
         }
     }
 
@@ -533,7 +540,7 @@ class Transactions {
      * Format currency (fallback)
      */
     formatCurrency(amount) {
-        return `$${(amount || 0).toFixed(2)}`;
+        return `€${(amount || 0).toFixed(2)}`;
     }
 
     /**
