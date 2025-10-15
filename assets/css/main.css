@@ -1044,3 +1044,358 @@ body {
 .transition-normal {
     transition: all var(--transition-normal);
 }
+
+.btn-logout {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: auto;
+}
+
+.btn-logout:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.btn-logout:active {
+    transform: translateY(0);
+}
+
+.btn-logout svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+/* Ajustar header se necessário */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    gap: 1rem;
+}
+
+/* Estados vazios melhorados */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #718096;
+    font-size: 14px;
+}
+
+.empty-state::before {
+    content: '📭';
+    display: block;
+    font-size: 48px;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+/* Cards de conta */
+.account-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.account-card:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+    transform: translateY(-2px);
+}
+
+.account-info h3 {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    color: #1a202c;
+}
+
+.account-info p {
+    margin: 0;
+    font-size: 13px;
+    color: #718096;
+}
+
+.account-balance {
+    font-size: 18px;
+    font-weight: 600;
+    color: #667eea;
+}
+
+/* Items de transação */
+.transaction-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.transaction-item:last-child {
+    border-bottom: none;
+}
+
+.transaction-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.transaction-category {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1a202c;
+}
+
+.transaction-date {
+    font-size: 12px;
+    color: #718096;
+}
+
+.transaction-amount {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.transaction-amount.income {
+    color: #10b981;
+}
+
+.transaction-amount.expense {
+    color: #ef4444;
+}
+
+/* Grid de estatísticas */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.stat-icon {
+    font-size: 32px;
+    opacity: 0.8;
+}
+
+.stat-info {
+    flex: 1;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: #718096;
+    margin-bottom: 4px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a202c;
+}
+
+.stat-value.income,
+.stat-value.positive {
+    color: #10b981;
+}
+
+.stat-value.expense,
+.stat-value.negative {
+    color: #ef4444;
+}
+
+/* Seções do dashboard */
+.dashboard-sections {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.section {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.section-header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #1a202c;
+}
+
+/* Tema escuro - ajustes para autenticação */
+.dark-theme .account-card {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+.dark-theme .account-info h3 {
+    color: #e2e8f0;
+}
+
+.dark-theme .account-info p {
+    color: #94a3b8;
+}
+
+.dark-theme .transaction-category {
+    color: #e2e8f0;
+}
+
+.dark-theme .transaction-date {
+    color: #94a3b8;
+}
+
+.dark-theme .stat-card {
+    background: #1e293b;
+}
+
+.dark-theme .stat-label {
+    color: #94a3b8;
+}
+
+.dark-theme .stat-value {
+    color: #e2e8f0;
+}
+
+.dark-theme .section {
+    background: #1e293b;
+}
+
+.dark-theme .section-header h2 {
+    color: #e2e8f0;
+}
+
+/* Responsivo - Mobile */
+@media (max-width: 768px) {
+    .header {
+        padding: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-logout span {
+        display: none;
+    }
+
+    .btn-logout {
+        padding: 8px;
+        min-width: 36px;
+        justify-content: center;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-sections {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-card {
+        padding: 1rem;
+    }
+
+    .stat-icon {
+        font-size: 28px;
+    }
+
+    .stat-value {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .account-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .account-balance {
+        font-size: 20px;
+    }
+
+    .transaction-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
+
+/* Animações */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+}
+
+/* Loading state */
+.loading {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* Success/Error states */
+.success-state {
+    color: #10b981;
+}
+
+.error-state {
+    color: #ef4444;
+}
+
+.warning-state {
+    color: #f59e0b;
+}

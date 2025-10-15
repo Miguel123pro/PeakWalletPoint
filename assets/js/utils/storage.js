@@ -4,7 +4,68 @@
  * 
  * @version 2.0.0
  */
+// ============================================
+// ENCRIPTAÇÃO - ADICIONAR NO INÍCIO DO FICHEIRO
+// ============================================
 
+class EncryptedStorageWrapper {
+    constructor(baseStorage) {
+        this.baseStorage = baseStorage;
+    }
+
+    /**
+     * Save encrypted data to localStorage
+     */
+    async saveToLocalStorage() {
+        if (!authManager.isAuthenticated) {
+            console.warn('Not authenticated - data not saved');
+            return false;
+        }
+
+        try {
+            const data = await this.baseStorage.exportAllData();
+            const encryptedData = await authManager.encrypt(data);
+            localStorage.setItem('finance_data', encryptedData);
+            return true;
+        } catch (error) {
+            console.error('Failed to save encrypted data:', error);
+            return false;
+        }
+    }
+
+    /**
+     * Load encrypted data from localStorage
+     */
+    async loadFromLocalStorage() {
+        if (!authManager.isAuthenticated) {
+            console.warn('Not authenticated - cannot load data');
+            return false;
+        }
+
+        try {
+            const encryptedData = localStorage.getItem('finance_data');
+
+            if (!encryptedData) {
+                console.log('No encrypted data found - starting fresh');
+                return true;
+            }
+
+            const data = await authManager.decrypt(encryptedData);
+            await this.baseStorage.importAllData(data);
+            return true;
+        } catch (error) {
+            console.error('Failed to load encrypted data:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Auto-save after any storage operation
+     */
+    async autoSave() {
+        await this.saveToLocalStorage();
+    }
+}
 class StorageManager {
     constructor() {
         // In-memory data store
@@ -657,8 +718,79 @@ class StorageManager {
     }
 }
 
-// Create global Storage instance
 const Storage = new StorageManager();
 
-// Make it available globally
+// Wrap storage with encryption
+const encryptedStorage = new EncryptedStorageWrapper(Storage);
+
+// Override methods to auto-save encrypted data
+const originalAddTransaction = Storage.addTransaction.bind(Storage);
+Storage.addTransaction = async function (...args) {
+    const result = await originalAddTransaction(...args);
+    await encryptedStorage.autoSave();
+    return result;
+};
+
+const originalUpdateTransaction = Storage.updateTransaction.bind(Storage);
+Storage.updateTransaction = async function (...args) {
+    const result = await originalUpdateTransaction(...args);
+    await encryptedStorage.autoSave();
+    return result;
+};
+
+const originalDeleteTransaction = Storage.deleteTransaction.bind(Storage);
+Storage.deleteTransaction = async function (...args) {
+    const result = await originalDeleteTransaction(...args);
+    await encryptedStorage.autoSave();
+    return result;
+};
+
+const originalAddGoal = Storage.addGoal.bind(Storage);
+Storage.addGoal = async function (...args) {
+    const result = await originalAddGoal(...args);
+    await encryptedStorage.autoSave();
+    return result;
+};
+
+const originalUpdateGoal = Storage.updateGoal.bind(Storage);
+Storage.updateGoal = async function (...args) {
+    const result = await originalUpdateGoal(...args);
+    await encryptedStorage.autoSave();
+    return result;
+};
+
+const originalDeleteGoal = Storage.deleteGoal.bind(Storage);
+Storage.deleteGoal = async function (...args) {
+    const result = await originalDeleteGoal(...args);
+    await encryptedStorage.autoSave();
+    return result;
+};
+
+const originalAddRoutine = Storage.addRoutine.bind(Storage);
+Storage.addRoutine = async function (...args) {
+    const result = await originalAddRoutine(...args);
+    await encryptedStorage.autoSave();
+    return result;
+};
+
+const originalUpdateRoutine = Storage.updateRoutine.bind(Storage);
+Storage.updateRoutine = async function (...args) {
+    const result = await originalUpdateRoutine(...args);
+    await encryptedStorage.autoSave();
+    return result;
+};
+
+const originalDeleteRoutine = Storage.deleteRoutine.bind(Storage);
+Storage.deleteRoutine = async function (...args) {
+    const result = await originalDeleteRoutine(...args);
+    await encryptedStorage.autoSave();
+    return result;
+};
+
+// Add method to load encrypted data
+Storage.loadEncryptedData = () => encryptedStorage.loadFromLocalStorage();
+Storage.saveEncryptedData = () => encryptedStorage.saveToLocalStorage();
+
+// Make available globally
 window.Storage = Storage;
+window.encryptedStorage = encryptedStorage;

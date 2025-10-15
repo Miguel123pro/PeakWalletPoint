@@ -228,17 +228,32 @@
     <div class="notification-container" id="notificationContainer"></div>
 
     <!-- JavaScript Modules -->
+
+    <!-- 1. AUTENTICAÇÃO - TEM QUE VIR PRIMEIRO! -->
+    <script src="assets/js/auth.js"></script>
+
+    <!-- 2. Configuração e Utilitários Base -->
     <script src="assets/js/config/constants.js"></script>
-    <script src="assets/js/utils/storage.js"></script>
     <script src="assets/js/utils/helpers.js"></script>
+
+    <!-- 3. Storage (precisa do authManager) -->
+    <script src="assets/js/utils/storage.js"></script>
+
+    <!-- 4. Outros Utilitários -->
     <script src="assets/js/utils/charts.js"></script>
     <script src="assets/js/utils/pdf-generator.js"></script>
+
+    <!-- 5. Componentes (precisam do Storage) -->
     <script src="assets/js/components/dashboard.js"></script>
     <script src="assets/js/components/transactions.js"></script>
     <script src="assets/js/components/goals.js"></script>
     <script src="assets/js/components/routines.js"></script>
     <script src="assets/js/components/reports.js"></script>
-    <script src="assets/js/app.js"></script>
+
+    <!-- 6. App Principal (precisa de tudo acima) -->
+    <script src="app.js"></script>
+
+    <!-- 7. Sidebar -->
     <script src="assets/js/sidebar.js"></script>
 </body>
 

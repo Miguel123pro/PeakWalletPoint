@@ -28,6 +28,21 @@ class FinanceProApp {
      */
     async init() {
         try {
+
+            // Check authentication
+            if (!authManager.hasActiveSession()) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Restore encryption key from session
+            const keyRestored = await authManager.restoreEncryptionKey();
+            if (!keyRestored) {
+                console.error('Failed to restore encryption key');
+                alert('Session expired. Please login again.');
+                authManager.logout();
+                return;
+            }
             // Show loading screen
             this.showLoading();
 
@@ -36,6 +51,16 @@ class FinanceProApp {
 
             // Initialize storage
             await Storage.init();
+
+            try {
+                await Storage.loadEncryptedData();
+                console.log('Encrypted data loaded successfully');
+            } catch (error) {
+                console.error('Failed to load encrypted data:', error);
+                alert('Error loading data. Please login again.');
+                authManager.logout();
+                return;
+            }
 
             // Initialize components
             await this.initializeComponents();
@@ -103,6 +128,36 @@ class FinanceProApp {
 
         // Update theme toggle icon
         this.updateThemeToggle();
+
+        // Add logout button
+        this.addLogoutButton();
+    }
+
+    addLogoutButton() {
+        const header = document.querySelector('.header') || document.querySelector('header');
+        if (!header) return;
+
+        // Check if logout button already exists
+        if (document.querySelector('.btn-logout')) return;
+
+        const logoutBtn = document.createElement('button');
+        logoutBtn.className = 'btn-logout';
+        logoutBtn.innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span>Sair</span>
+    `;
+
+        logoutBtn.addEventListener('click', () => {
+            if (confirm('Tem a certeza que quer sair?')) {
+                authManager.logout();
+            }
+        });
+
+        header.appendChild(logoutBtn);
     }
 
     /**
