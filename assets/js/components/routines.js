@@ -367,12 +367,7 @@ class Routines {
 
     setupRoutineForm() {
         const form = document.getElementById('routineForm');
-        if (form) {
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                await this.handleRoutineSubmit(e.target);
-            });
-        }
+
 
         // Calculate monthly payment on the fly
         const totalAmountInput = document.getElementById('routineTotalAmount');

@@ -9,6 +9,7 @@ class Goals {
     constructor() {
         this.goals = [];
         this.isInitialized = false;
+        this.eventListenersAttached = false;
     }
 
     /**
@@ -17,8 +18,7 @@ class Goals {
     async init() {
         try {
             await this.loadGoals();
-            this.renderGoalsTab();
-            this.setupEventListeners();
+            await this.show();
 
             this.isInitialized = true;
             console.log('Goals component initialized');
@@ -94,6 +94,8 @@ class Goals {
                     </div>
                     <div class="goal-form-container" id="goalFormContainer" style="display: none;">
                         <form id="goalForm" class="goal-form">
+                            <input type="hidden" id="goalId">
+                            
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label">Goal Name</label>
@@ -115,7 +117,7 @@ class Goals {
                                            placeholder="0.00" step="0.01" required>
                                 </div>
                                 <div class="form-group">
-                                <label class="form-label">Current Amount (€)</label>
+                                    <label class="form-label">Current Amount (€)</label>
                                     <input type="number" id="goalCurrentAmount" class="form-input" 
                                            placeholder="0.00" step="0.01" value="0">
                                 </div>
@@ -145,7 +147,7 @@ class Goals {
                             <div class="form-actions">
                                 <button type="submit" class="btn btn-primary">
                                     <span class="add-icon"></span>
-                                    Create Goal
+                                    <span id="goalFormSubmitText">Create Goal</span>
                                 </button>
                                 <button type="button" class="btn btn-secondary" id="cancelGoalForm">Cancel</button>
                             </div>
@@ -200,41 +202,122 @@ class Goals {
     }
 
     /**
-     * Setup event listeners
+     * Setup event listeners - USANDO EVENT DELEGATION NO CONTAINER PRINCIPAL
      */
     setupEventListeners() {
-        // Goal form toggle
-        const toggleBtn = document.getElementById('toggleGoalForm');
-        if (toggleBtn) {
-            toggleBtn.addEventListener('click', () => {
-                this.toggleGoalForm();
-            });
+        const goalsTab = document.getElementById('goals');
+        if (!goalsTab) {
+            console.error('Goals tab not found!');
+            return;
         }
 
-        // Goal form submission
-        const form = document.getElementById('goalForm');
-        if (form) {
-            form.addEventListener('submit', (e) => {
+        console.log('Setting up event listeners for goals...');
+
+        // Remove listener antigo se existir
+        if (this.clickHandler) {
+            goalsTab.removeEventListener('click', this.clickHandler);
+        }
+
+        // Cria novo handler
+        this.clickHandler = (e) => {
+            console.log('Click detected in goals tab:', e.target);
+
+            // Toggle Goal Form Button
+            const toggleBtn = e.target.closest('#toggleGoalForm');
+            if (toggleBtn) {
+                console.log('Toggle button clicked');
                 e.preventDefault();
-                this.addGoal();
-            });
-        }
+                this.toggleGoalForm();
+                return;
+            }
 
-        // Cancel form
-        const cancelBtn = document.getElementById('cancelGoalForm');
-        if (cancelBtn) {
-            cancelBtn.addEventListener('click', () => {
+            // Cancel Goal Form Button
+            const cancelBtn = e.target.closest('#cancelGoalForm');
+            if (cancelBtn) {
+                console.log('Cancel button clicked');
+                e.preventDefault();
                 this.hideGoalForm();
-            });
+                return;
+            }
+
+            // Update Progress Button
+            const updateBtn = e.target.closest('[data-action="update-progress"]');
+            if (updateBtn) {
+                console.log('Update progress button clicked');
+                e.preventDefault();
+                const goalId = parseInt(updateBtn.getAttribute('data-goal-id'));
+                console.log('Goal ID:', goalId, typeof goalId);
+                this.showProgressModal(goalId);
+                return;
+            }
+
+            // Edit Goal Button
+            const editBtn = e.target.closest('[data-action="edit-goal"]');
+            if (editBtn) {
+                console.log('Edit button clicked');
+                e.preventDefault();
+                const goalId = parseInt(editBtn.getAttribute('data-goal-id'));
+                console.log('Goal ID:', goalId, typeof goalId);
+                this.editGoal(goalId);
+                return;
+            }
+
+            // Delete Goal Button
+            const deleteBtn = e.target.closest('[data-action="delete-goal"]');
+            if (deleteBtn) {
+                console.log('Delete button clicked');
+                e.preventDefault();
+                const goalId = parseInt(deleteBtn.getAttribute('data-goal-id'));
+                console.log('Goal ID:', goalId, typeof goalId);
+                this.deleteGoal(goalId);
+                return;
+            }
+
+            // Create First Goal Button
+            const createFirstBtn = e.target.closest('[data-action="create-first-goal"]');
+            if (createFirstBtn) {
+                console.log('Create first goal button clicked');
+                e.preventDefault();
+                this.showGoalForm();
+                return;
+            }
+        };
+
+        // Adiciona o listener
+        goalsTab.addEventListener('click', this.clickHandler);
+
+        // Remove listener antigo de submit se existir
+        if (this.submitHandler) {
+            goalsTab.removeEventListener('submit', this.submitHandler);
         }
 
-        // Sort goals
-        const sortSelect = document.getElementById('goalsSortBy');
-        if (sortSelect) {
-            sortSelect.addEventListener('change', (e) => {
-                this.sortGoals(e.target.value);
-            });
+        // Form submission
+        this.submitHandler = (e) => {
+            if (e.target.id === 'goalForm') {
+                console.log('Form submitted');
+                e.preventDefault();
+                this.saveGoal();
+            }
+        };
+
+        goalsTab.addEventListener('submit', this.submitHandler);
+
+        // Remove listener antigo de change se existir
+        if (this.changeHandler) {
+            goalsTab.removeEventListener('change', this.changeHandler);
         }
+
+        // Sort dropdown change
+        this.changeHandler = (e) => {
+            if (e.target.id === 'goalsSortBy') {
+                console.log('Sort changed:', e.target.value);
+                this.sortGoals(e.target.value);
+            }
+        };
+
+        goalsTab.addEventListener('change', this.changeHandler);
+
+        console.log('Event listeners configured successfully');
     }
 
     /**
@@ -242,8 +325,6 @@ class Goals {
      */
     toggleGoalForm() {
         const container = document.getElementById('goalFormContainer');
-        const toggleBtn = document.getElementById('toggleGoalForm');
-
         if (container.style.display === 'none') {
             this.showGoalForm();
         } else {
@@ -258,14 +339,16 @@ class Goals {
         const container = document.getElementById('goalFormContainer');
         const toggleBtn = document.getElementById('toggleGoalForm');
 
-        container.style.display = 'block';
-        toggleBtn.innerHTML = '<span class="close-icon"></span> Cancel';
-        toggleBtn.className = 'btn-danger btn-sm';
+        if (container && toggleBtn) {
+            container.style.display = 'block';
+            toggleBtn.innerHTML = '<span class="close-icon"></span> Cancel';
+            toggleBtn.className = 'btn-danger btn-sm';
 
-        // Focus on first input
-        setTimeout(() => {
-            document.getElementById('goalName').focus();
-        }, 100);
+            setTimeout(() => {
+                const firstInput = document.getElementById('goalName');
+                if (firstInput) firstInput.focus();
+            }, 100);
+        }
     }
 
     /**
@@ -275,11 +358,13 @@ class Goals {
         const container = document.getElementById('goalFormContainer');
         const toggleBtn = document.getElementById('toggleGoalForm');
 
-        container.style.display = 'none';
-        toggleBtn.innerHTML = '<span class="add-icon"></span> Add Goal';
-        toggleBtn.className = 'btn-secondary btn-sm';
+        if (container && toggleBtn) {
+            container.style.display = 'none';
+            toggleBtn.innerHTML = '<span class="add-icon"></span> Add Goal';
+            toggleBtn.className = 'btn-secondary btn-sm';
 
-        this.clearGoalForm();
+            this.clearGoalForm();
+        }
     }
 
     /**
@@ -289,7 +374,14 @@ class Goals {
         const form = document.getElementById('goalForm');
         if (form) {
             form.reset();
-            document.getElementById('goalCurrentAmount').value = '0';
+            const goalId = document.getElementById('goalId');
+            const currentAmount = document.getElementById('goalCurrentAmount');
+            const submitText = document.getElementById('goalFormSubmitText');
+
+            if (goalId) goalId.value = '';
+            if (currentAmount) currentAmount.value = '0';
+            if (submitText) submitText.textContent = 'Create Goal';
+
             this.updateGoalFormMinDate();
         }
     }
@@ -307,10 +399,11 @@ class Goals {
     }
 
     /**
-     * Add new goal
+     * Save goal (create or update)
      */
-    async addGoal() {
+    async saveGoal() {
         try {
+            const goalId = document.getElementById('goalId').value;
             const name = document.getElementById('goalName').value.trim();
             const type = document.getElementById('goalType').value;
             const targetAmount = parseFloat(document.getElementById('goalTargetAmount').value);
@@ -350,29 +443,82 @@ class Goals {
                 description
             };
 
-            // Add to storage
-            const newGoal = await Storage.addGoal(goalData);
+            if (goalId) {
+                // Update existing goal
+                await Storage.updateGoal(goalId, goalData);
 
-            // Update local data
-            this.goals.push(newGoal);
+                const index = this.goals.findIndex(g => g.id === goalId);
+                if (index !== -1) {
+                    this.goals[index] = { ...this.goals[index], ...goalData };
+                }
 
-            // Update UI
+                this.showNotification('Goal updated successfully!', 'success');
+            } else {
+                // Add new goal
+                const newGoal = await Storage.addGoal(goalData);
+                this.goals.push(newGoal);
+                this.showNotification('Goal created successfully!', 'success');
+
+                if (currentAmount >= targetAmount) {
+                    this.showNotification(`Congratulations! You've already achieved your ${name} goal!`, 'success');
+                }
+            }
+
             this.updateGoalsList();
             this.updateOverviewStats();
             this.hideGoalForm();
 
-            this.showNotification('Goal created successfully!', 'success');
-
-            // Check for goal completion
-            if (currentAmount >= targetAmount) {
-                this.showNotification(`Congratulations! You've already achieved your ${name} goal!`, 'success');
-            }
-
         } catch (error) {
-            console.error('Failed to add goal:', error);
-            this.showNotification('Failed to create goal', 'danger');
+            console.error('Failed to save goal:', error);
+            this.showNotification('Failed to save goal', 'danger');
         }
     }
+
+    /**
+     * Edit goal
+     */
+    editGoal(goalId) {
+        console.log('editGoal called with goalId:', goalId, typeof goalId);
+
+        // CONVERTE PARA NÚMERO
+        goalId = parseInt(goalId);
+
+        const goal = this.goals.find(g => g.id === goalId);
+        console.log('Goal found:', goal);
+
+        if (!goal) {
+            console.error('Goal not found!');
+            return;
+        }
+
+        this.showGoalForm();
+
+        setTimeout(() => {
+            const fields = {
+                goalId: goal.id,
+                goalName: goal.name,
+                goalType: goal.type,
+                goalTargetAmount: goal.targetAmount,
+                goalCurrentAmount: goal.currentAmount,
+                goalDeadline: goal.deadline,
+                goalPriority: goal.priority,
+                goalDescription: goal.description || ''
+            };
+
+            Object.entries(fields).forEach(([id, value]) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.value = value;
+                }
+            });
+
+            const submitText = document.getElementById('goalFormSubmitText');
+            if (submitText) {
+                submitText.textContent = 'Update Goal';
+            }
+        }, 150);
+    }
+
 
     /**
      * Update goal progress
@@ -386,17 +532,12 @@ class Goals {
             const oldAmount = goal.currentAmount;
             const wasCompleted = goal.isCompleted;
 
-            // Update storage
             const updatedGoal = await Storage.updateGoal(goalId, { currentAmount: newAmount });
-
-            // Update local data
             this.goals[goalIndex] = updatedGoal;
 
-            // Update UI
             this.updateGoalsList();
             this.updateOverviewStats();
 
-            // Check for goal completion
             if (!wasCompleted && updatedGoal.isCompleted) {
                 this.showNotification(`Congratulations! You've completed your ${goal.name} goal!`, 'success');
                 this.celebrateGoalCompletion(goal);
@@ -414,8 +555,18 @@ class Goals {
      * Delete goal
      */
     async deleteGoal(goalId) {
+        console.log('deleteGoal called with goalId:', goalId, typeof goalId);
+
+        // CONVERTE PARA NÚMERO
+        goalId = parseInt(goalId);
+
         const goal = this.goals.find(g => g.id === goalId);
-        if (!goal) return;
+        console.log('Goal found:', goal);
+
+        if (!goal) {
+            console.error('Goal not found!');
+            return;
+        }
 
         if (!confirm(`Are you sure you want to delete the goal "${goal.name}"?`)) {
             return;
@@ -424,10 +575,8 @@ class Goals {
         try {
             await Storage.deleteGoal(goalId);
 
-            // Update local data
             this.goals = this.goals.filter(g => g.id !== goalId);
 
-            // Update UI
             this.updateGoalsList();
             this.updateOverviewStats();
 
@@ -477,7 +626,7 @@ class Goals {
                     </div>
                     <h3>No goals yet</h3>
                     <p>Create your first financial goal to start tracking your progress!</p>
-                    <button class="btn btn-primary" onclick="window.app.goals.showGoalForm()">
+                    <button class="btn btn-primary" data-action="create-first-goal">
                         <span class="add-icon"></span>
                         Create Your First Goal
                     </button>
@@ -495,7 +644,9 @@ class Goals {
                 <div class="goal-item ${isCompleted ? 'completed' : ''} ${isOverdue ? 'overdue' : ''}">
                     <div class="goal-header">
                         <div class="goal-info">
-                            <div class="goal-type-icon">${this.getGoalTypeIcon(goal.type)}</div>
+                            <div class="goal-type-icon">
+                                <i class="fi fi-rs-flag"></i>
+                            </div>
                             <div>
                                 <h4 class="goal-title">${goal.name}</h4>
                                 <div class="goal-meta">
@@ -510,10 +661,13 @@ class Goals {
                             </div>
                         </div>
                         <div class="goal-actions">
-                            <button class="btn-icon" onclick="window.app.goals.showProgressModal('${goal.id}')" title="Update Progress">
+                            <button class="btn-icon" data-action="update-progress" data-goal-id="${goal.id}" title="Update Progress">
                                 <span class="icon-chart"></span>
                             </button>
-                            <button class="btn-icon delete-btn" onclick="window.app.goals.deleteGoal('${goal.id}')" title="Delete Goal">
+                            <button class="btn-icon" data-action="edit-goal" data-goal-id="${goal.id}" title="Edit Goal">
+                                <span class="icon-edit"></span>
+                            </button>
+                            <button class="btn-icon delete-btn" data-action="delete-goal" data-goal-id="${goal.id}" title="Delete Goal">
                                 <span class="icon-delete"></span>
                             </button>
                         </div>
@@ -534,10 +688,10 @@ class Goals {
                     </div>
 
                     ${goal.description ? `
-                <div class="goal-description">
-                    <p>${goal.description}</p>
-                </div>
-                ` : ''}
+                        <div class="goal-description">
+                            <p>${goal.description}</p>
+                        </div>
+                    ` : ''}
 
                     <div class="goal-insights">
                         ${this.generateGoalInsights(goal)}
@@ -561,11 +715,8 @@ class Goals {
      * Update overview statistics
      */
     updateOverviewStats() {
-        // This will be called when the overview section is rendered
-        // The stats are calculated dynamically in renderGoalsTab()
         const tabContent = document.getElementById('goals');
         if (tabContent) {
-            // Re-render only the stats section
             const statsSection = tabContent.querySelector('.overview-stats');
             if (statsSection) {
                 statsSection.innerHTML = `
@@ -606,59 +757,87 @@ class Goals {
      * Show progress update modal
      */
     showProgressModal(goalId) {
+        console.log('showProgressModal called with goalId:', goalId);
+
+        // CONVERTE PARA NÚMERO
+        goalId = parseInt(goalId);
+
         const goal = this.goals.find(g => g.id === goalId);
-        if (!goal) return;
+        console.log('Goal found:', goal);
+
+        if (!goal) {
+            console.error('Goal not found!');
+            return;
+        }
+
+        // Remove modal antigo se existir
+        const oldModal = document.getElementById('progressModal');
+        if (oldModal) {
+            oldModal.remove();
+        }
 
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
+        modal.id = 'progressModal';
         modal.innerHTML = `
-            <div class="modal">
-                <div class="modal-header">
-                    <h3>Update Progress: ${goal.name}</h3>
-                    <button class="modal-close">
-                        <span class="close-icon"></span>
-                    </button>
-                </div>
-                <div class="modal-content">
-                    <div class="progress-update-form">
-                        <div class="current-progress">
-                            <p>Current: ${this.formatCurrency(goal.currentAmount)} of ${this.formatCurrency(goal.targetAmount)}</p>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: ${(goal.currentAmount / goal.targetAmount * 100)}%"></div>
-                            </div>
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Update Progress: ${goal.name}</h3>
+                <button class="modal-close" data-action="close-progress-modal">×</button>
+            </div>
+            <ред class="modal-content">
+                <div class="progress-update-form">
+                    <div class="current-progress">
+                        <p>Current: ${this.formatCurrency(goal.currentAmount)} of ${this.formatCurrency(goal.targetAmount)}</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${(goal.currentAmount / goal.targetAmount * 100)}%"></div>
                         </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">New Amount ($)</label>
-                            <input type="number" id="newProgressAmount" class="form-input" 
-                                   value="${goal.currentAmount}" step="0.01" min="0" max="${goal.targetAmount}">
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button class="btn btn-primary" onclick="window.app.goals.saveProgress('${goalId}')">
-                                <span class="save-icon"></span>
-                                Update Progress
-                            </button>
-                            <button class="btn btn-secondary" onclick="window.app.goals.closeProgressModal()">
-                                Cancel
-                            </button>
-                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">New Amount (€)</label>
+                        <input type="number" id="newProgressAmount" class="form-input" 
+                               value="${goal.currentAmount}" step="0.01" min="0" max="${goal.targetAmount}">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="btn btn-primary" data-action="save-progress" data-goal-id="${goalId}">
+                            <span class="save-icon"></span>
+                            Update Progress
+                        </button>
+                        <button class="btn btn-secondary" data-action="close-progress-modal">
+                            Cancel
+                        </button>
                     </div>
                 </div>
             </div>
-        `;
+        </div>
+    `;
 
         document.body.appendChild(modal);
 
         // Show modal
         setTimeout(() => modal.classList.add('active'), 10);
 
-        // Setup close handlers
-        modal.querySelector('.modal-close').addEventListener('click', () => {
-            this.closeProgressModal();
-        });
+        // Setup event delegation for modal buttons
+        modal.addEventListener('click', async (e) => {
+            // Close button
+            if (e.target.closest('[data-action="close-progress-modal"]')) {
+                e.preventDefault();
+                this.closeProgressModal();
+                return;
+            }
 
-        modal.addEventListener('click', (e) => {
+            // Save button
+            if (e.target.closest('[data-action="save-progress"]')) {
+                e.preventDefault();
+                const btn = e.target.closest('[data-action="save-progress"]');
+                const goalId = parseInt(btn.getAttribute('data-goal-id')); // CONVERTE AQUI TAMBÉM
+                await this.saveProgress(goalId);
+                return;
+            }
+
+            // Click outside modal
             if (e.target === modal) {
                 this.closeProgressModal();
             }
@@ -666,14 +845,19 @@ class Goals {
 
         // Focus on input
         setTimeout(() => {
-            document.getElementById('newProgressAmount').focus();
+            const input = document.getElementById('newProgressAmount');
+            if (input) input.focus();
         }, 100);
     }
+
 
     /**
      * Save progress update
      */
     async saveProgress(goalId) {
+        // CONVERTE PARA NÚMERO AQUI TAMBÉM
+        goalId = parseInt(goalId);
+
         const newAmount = parseFloat(document.getElementById('newProgressAmount').value);
 
         if (isNaN(newAmount) || newAmount < 0) {
@@ -689,7 +873,7 @@ class Goals {
      * Close progress modal
      */
     closeProgressModal() {
-        const modal = document.querySelector('.modal-overlay');
+        const modal = document.getElementById('progressModal');
         if (modal) {
             modal.classList.remove('active');
             setTimeout(() => modal.remove(), 300);
@@ -729,21 +913,19 @@ class Goals {
      * Get goal type icon
      */
     getGoalTypeIcon(type) {
-        const iconClasses = {
-            savings: 'goal-savings',
-            debt: 'goal-debt',
-            purchase: 'goal-purchase',
-            emergency: 'goal-emergency',
-            vacation: 'goal-vacation',
-            retirement: 'goal-retirement',
-            education: 'goal-education',
-            investment: 'goal-investment',
-            home: 'goal-home',
-            other: 'goal-savings'
+        const icons = {
+            savings: '<i class="fi fi-rs-piggy-bank"></i>',
+            debt: '<i class="fi fi-rs-hand-holding-usd"></i>',
+            purchase: '<i class="fi fi-rs-shopping-cart"></i>',
+            emergency: '<i class="fi fi-rs-shield-check"></i>',
+            vacation: '<i class="fi fi-rs-plane"></i>',
+            retirement: '<i class="fi fi-rs-user-time"></i>',
+            education: '<i class="fi fi-rs-graduation-cap"></i>',
+            investment: '<i class="fi fi-rs-chart-line-up"></i>',
+            home: '<i class="fi fi-rs-home"></i>',
+            other: '<i class="fi fi-rs-flag"></i>'
         };
-
-        const iconClass = iconClasses[type] || 'goal-savings';
-        return `<div class="icon ${iconClass}"></div>`;
+        return icons[type] || '<i class="fi fi-rs-flag"></i>';
     }
 
     /**
@@ -787,14 +969,11 @@ class Goals {
      * Celebrate goal completion
      */
     celebrateGoalCompletion(goal) {
-        // Could add confetti animation or celebration modal here
         console.log(`Goal "${goal.name}" completed!`);
-
-        // Future: Add confetti animation, sound, or special modal
     }
 
     /**
-     * Format currency (fallback)
+     * Format currency
      */
     formatCurrency(amount) {
         if (typeof Helpers !== 'undefined' && Helpers.formatCurrency) {
@@ -819,8 +998,24 @@ class Goals {
      */
     async refresh() {
         await this.loadGoals();
-        this.updateGoalsList();
-        this.updateOverviewStats();
+        this.renderGoalsTab();
+        this.setupEventListeners();
+    }
+
+    /**
+     * Show goals tab
+     */
+    async show() {
+        this.renderGoalsTab();
+        // Configura os listeners DEPOIS do render
+        this.setupEventListeners();
+    }
+
+    /**
+     * Hide goals tab
+     */
+    hide() {
+        // Cleanup if needed
     }
 
     /**
@@ -829,9 +1024,13 @@ class Goals {
     cleanup() {
         this.goals = [];
         this.isInitialized = false;
+        this.eventListenersAttached = false;
         console.log('Goals component cleaned up');
     }
 }
+
+// Make Goals available globally
+window.Goals = Goals;
 
 // Export for module systems
 if (typeof module !== 'undefined' && module.exports) {

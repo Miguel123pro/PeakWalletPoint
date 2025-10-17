@@ -128,36 +128,6 @@ class FinanceProApp {
 
         // Update theme toggle icon
         this.updateThemeToggle();
-
-        // Add logout button
-        this.addLogoutButton();
-    }
-
-    addLogoutButton() {
-        const header = document.querySelector('.header') || document.querySelector('header');
-        if (!header) return;
-
-        // Check if logout button already exists
-        if (document.querySelector('.btn-logout')) return;
-
-        const logoutBtn = document.createElement('button');
-        logoutBtn.className = 'btn-logout';
-        logoutBtn.innerHTML = `
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <span>Sair</span>
-    `;
-
-        logoutBtn.addEventListener('click', () => {
-            if (confirm('Tem a certeza que quer sair?')) {
-                authManager.logout();
-            }
-        });
-
-        header.appendChild(logoutBtn);
     }
 
     /**
@@ -205,8 +175,8 @@ class FinanceProApp {
         // Theme toggle
         this.setupThemeToggle();
 
-        // Quick add button
-        this.setupQuickAdd();
+        // Header (Quick add, Profile, Logout)
+        this.initializeHeader();
 
         // Modal interactions
         this.setupModals();
@@ -216,6 +186,71 @@ class FinanceProApp {
 
         // Window events
         this.setupWindowEvents();
+    }
+
+    /**
+     * Initialize Header
+     */
+    initializeHeader() {
+        // Quick Add Button
+        const quickAddBtn = document.getElementById('quickAddBtn');
+        if (quickAddBtn) {
+            quickAddBtn.addEventListener('click', () => {
+                this.showQuickAddModal();
+            });
+        }
+
+        // Profile Button
+        const profileBtn = document.getElementById('headerProfile');
+        if (profileBtn) {
+            profileBtn.addEventListener('click', () => {
+                this.showProfileModal();
+            });
+        }
+
+        // Logout Button
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                this.logout();
+            });
+        }
+
+        // Close Profile Modal
+        const closeProfileModal = document.getElementById('closeProfileModal');
+        if (closeProfileModal) {
+            closeProfileModal.addEventListener('click', () => {
+                this.hideProfileModal();
+            });
+        }
+
+        // Profile Form Submit
+        const profileForm = document.getElementById('profileForm');
+        if (profileForm) {
+            profileForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleProfileUpdate(e.target);
+            });
+        }
+
+        // Profile Image Upload
+        const profileImageInput = document.getElementById('profileImageInput');
+        if (profileImageInput) {
+            profileImageInput.addEventListener('change', (e) => {
+                this.handleProfileImageUpload(e);
+            });
+        }
+
+        // Remove Photo Button
+        const removePhotoBtn = document.getElementById('removePhotoBtn');
+        if (removePhotoBtn) {
+            removePhotoBtn.addEventListener('click', () => {
+                this.removeProfilePhoto();
+            });
+        }
+
+        // Load user info
+        this.updateUserInfo();
     }
 
     /**
@@ -247,25 +282,14 @@ class FinanceProApp {
     }
 
     /**
-     * Setup quick add functionality
-     */
-    setupQuickAdd() {
-        const quickAddBtn = document.getElementById('quickAddBtn');
-
-        if (quickAddBtn) {
-            quickAddBtn.addEventListener('click', () => {
-                this.showQuickAddModal();
-            });
-        }
-    }
-
-    /**
      * Setup modal interactions
      */
     setupModals() {
         const modalOverlay = document.getElementById('modalOverlay');
         const closeModal = document.getElementById('closeModal');
+        const profileModalOverlay = document.getElementById('profileModalOverlay');
 
+        // Quick Add Modal
         if (modalOverlay) {
             modalOverlay.addEventListener('click', (e) => {
                 if (e.target === modalOverlay) {
@@ -280,10 +304,20 @@ class FinanceProApp {
             });
         }
 
-        // ESC key to close modal
+        // Profile Modal
+        if (profileModalOverlay) {
+            profileModalOverlay.addEventListener('click', (e) => {
+                if (e.target === profileModalOverlay) {
+                    this.hideProfileModal();
+                }
+            });
+        }
+
+        // ESC key to close modals
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 this.hideModal();
+                this.hideProfileModal();
             }
         });
     }
@@ -530,45 +564,56 @@ class FinanceProApp {
      */
     generateQuickAddForm() {
         return `
-            <form id="quickAddForm" class="form">
-                <div class="form-group">
-                    <label class="form-label">Type</label>
-                    <select id="quickType" class="form-select" required>
-                        <option value="expense">Expense</option>
-                        <option value="income">Income</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Amount</label>
-                    <input type="number" id="quickAmount" class="form-input" 
-                           placeholder="0.00" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Category</label>
-                    <select id="quickCategory" class="form-select" required>
-                        ${this.generateCategoryOptions()}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Description</label>
-                    <input type="text" id="quickDescription" class="form-input" 
-                           placeholder="Enter description..." required>
-                </div>
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        Add Transaction
-                    </button>
-                    <button type="button" class="btn btn-secondary btn-lg" onclick="app.hideModal()">
-                        Cancel
-                    </button>
-                </div>
-            </form>
-        `;
+        <form id="quickAddForm" class="form">
+            <div class="form-group">
+                <label class="form-label">Type</label>
+                <select id="quickType" class="form-select" required>
+                    <option value="expense">Expense</option>
+                    <option value="income">Income</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Amount (€)</label>
+                <input type="number" id="quickAmount" class="form-input" 
+                       placeholder="0.00" step="0.01" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Date</label>
+                <input type="date" id="quickDate" class="form-input" 
+                       value="${new Date().toISOString().split('T')[0]}" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Category</label>
+                <select id="quickCategory" class="form-select" required>
+                    ${this.generateCategoryOptions()}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <input type="text" id="quickDescription" class="form-input" 
+                       placeholder="Enter description..." required>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary btn-lg" onclick="app.hideModal()">
+                    Cancel
+                </button>
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <span class="btn-icon save-icon"></span>
+                    Add Transaction
+                </button>
+            </div>
+        </form>
+    `;
     }
 
     /**
-      * Generate category options HTML
- */
+     * Generate category options HTML
+     */
     generateCategoryOptions() {
         const categories = typeof EXPENSE_CATEGORIES !== 'undefined' ? EXPENSE_CATEGORIES : [
             { id: 'food', name: 'Food & Dining' },
@@ -619,14 +664,15 @@ class FinanceProApp {
     }
 
     /**
-    * Handle quick add form submission
- */
+     * Handle quick add form submission
+     */
     async handleQuickAdd() {
         try {
             const type = document.getElementById('quickType').value;
             const amountInput = parseFloat(document.getElementById('quickAmount').value);
             const category = document.getElementById('quickCategory').value;
             const description = document.getElementById('quickDescription').value.trim();
+            const date = document.getElementById('quickDate').value;
 
             // Validate amount
             if (!amountInput || amountInput <= 0 || isNaN(amountInput)) {
@@ -640,14 +686,19 @@ class FinanceProApp {
                 return;
             }
 
+            // Validate date
+            if (!date) {
+                this.showNotification('Please select a date', 'danger');
+                return;
+            }
+
             // Create transaction with correct amount sign
-            // CRITICAL: Expenses are negative, income is positive
             const transactionData = {
                 type: type,
                 amount: type === 'income' ? amountInput : -amountInput,
                 category: category,
                 description: description,
-                date: new Date().toISOString().split('T')[0]
+                date: date
             };
 
             // Add transaction directly to storage
@@ -676,8 +727,259 @@ class FinanceProApp {
      */
     hideModal() {
         const modalOverlay = document.getElementById('modalOverlay');
+        const profileModalOverlay = document.getElementById('profileModalOverlay');
+
         if (modalOverlay) {
             modalOverlay.classList.remove('active');
+        }
+
+        if (profileModalOverlay) {
+            profileModalOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+
+    /**
+     * Show Profile Modal
+     */
+    showProfileModal() {
+        const overlay = document.getElementById('profileModalOverlay');
+        if (overlay) {
+            // Load current user data
+            if (typeof authManager !== 'undefined' && authManager.currentUser) {
+                const user = authManager.currentUser;
+
+                document.getElementById('profileName').value = user.name || '';
+                document.getElementById('profileEmail').value = user.email || '';
+
+                // Set member since date
+                const memberSince = document.getElementById('memberSince');
+                if (memberSince && user.createdAt) {
+                    const date = new Date(user.createdAt);
+                    memberSince.textContent = date.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                }
+
+                // Load profile image if exists
+                if (user.profileImage) {
+                    const img = document.getElementById('profileImagePreview');
+                    const initials = document.getElementById('profileInitialsLarge');
+                    if (img && initials) {
+                        img.src = user.profileImage;
+                        img.style.display = 'block';
+                        initials.style.display = 'none';
+                        document.getElementById('removePhotoBtn').style.display = 'block';
+                    }
+                }
+            }
+
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    /**
+     * Hide Profile Modal
+     */
+    hideProfileModal() {
+        const overlay = document.getElementById('profileModalOverlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+
+    /**
+     * Handle Profile Image Upload
+     */
+    async handleProfileImageUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Validate file
+        if (!file.type.startsWith('image/')) {
+            this.showNotification('Please select an image file', 'danger');
+            return;
+        }
+
+        if (file.size > 2 * 1024 * 1024) { // 2MB limit
+            this.showNotification('Image size must be less than 2MB', 'danger');
+            return;
+        }
+
+        try {
+            // Convert to base64
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const imageData = e.target.result;
+
+                const img = document.getElementById('profileImagePreview');
+                const initials = document.getElementById('profileInitialsLarge');
+                const headerImg = document.getElementById('userProfileImage');
+                const headerInitials = document.getElementById('userInitials');
+
+                if (img && initials) {
+                    img.src = imageData;
+                    img.style.display = 'block';
+                    initials.style.display = 'none';
+                    document.getElementById('removePhotoBtn').style.display = 'block';
+                }
+
+                // Update header profile image
+                if (headerImg && headerInitials) {
+                    headerImg.src = imageData;
+                    headerImg.style.display = 'block';
+                    headerInitials.style.display = 'none';
+                }
+
+                // Save to localStorage
+                if (typeof authManager !== 'undefined' && authManager.currentUser) {
+                    authManager.currentUser.profileImage = imageData;
+                    // Save to localStorage
+                    const users = JSON.parse(localStorage.getItem('financepro_users') || '{}');
+                    if (users[authManager.currentUser.email]) {
+                        users[authManager.currentUser.email].profileImage = imageData;
+                        localStorage.setItem('financepro_users', JSON.stringify(users));
+                    }
+                }
+            };
+            reader.readAsDataURL(file);
+
+            this.showNotification('Profile photo updated!', 'success');
+        } catch (error) {
+            console.error('Failed to upload image:', error);
+            this.showNotification('Failed to upload photo', 'danger');
+        }
+    }
+
+    /**
+     * Remove Profile Photo
+     */
+    removeProfilePhoto() {
+        const img = document.getElementById('profileImagePreview');
+        const initials = document.getElementById('profileInitialsLarge');
+        const headerImg = document.getElementById('userProfileImage');
+        const headerInitials = document.getElementById('userInitials');
+
+        if (img && initials) {
+            img.src = '';
+            img.style.display = 'none';
+            initials.style.display = 'flex';
+            document.getElementById('removePhotoBtn').style.display = 'none';
+        }
+
+        // Update header
+        if (headerImg && headerInitials) {
+            headerImg.src = '';
+            headerImg.style.display = 'none';
+            headerInitials.style.display = 'flex';
+        }
+
+        // Save to localStorage
+        if (typeof authManager !== 'undefined' && authManager.currentUser) {
+            authManager.currentUser.profileImage = null;
+            // Save to localStorage
+            const users = JSON.parse(localStorage.getItem('financepro_users') || '{}');
+            if (users[authManager.currentUser.email]) {
+                users[authManager.currentUser.email].profileImage = null;
+                localStorage.setItem('financepro_users', JSON.stringify(users));
+            }
+        }
+
+        this.showNotification('Profile photo removed', 'info');
+    }
+
+    /**
+     * Handle Profile Update
+     */
+    async handleProfileUpdate(form) {
+        try {
+            const name = document.getElementById('profileName').value;
+
+            if (!name.trim()) {
+                throw new Error('Name is required');
+            }
+
+            // Update user info
+            if (typeof authManager !== 'undefined' && authManager.currentUser) {
+                authManager.currentUser.name = name.trim();
+
+                // Save to localStorage
+                const users = JSON.parse(localStorage.getItem('financepro_users') || '{}');
+                if (users[authManager.currentUser.email]) {
+                    users[authManager.currentUser.email].name = name.trim();
+                    localStorage.setItem('financepro_users', JSON.stringify(users));
+                }
+            }
+
+            this.updateUserInfo();
+            this.hideProfileModal();
+            this.showNotification('Profile updated successfully!', 'success');
+
+        } catch (error) {
+            console.error('Failed to update profile:', error);
+            this.showNotification('Failed to update profile: ' + error.message, 'danger');
+        }
+    }
+
+    /**
+     * Update User Info in Header
+     */
+    updateUserInfo() {
+        if (typeof authManager !== 'undefined' && authManager.currentUser) {
+            const user = authManager.currentUser;
+
+            // Update name
+            const userName = document.getElementById('userName');
+            if (userName) userName.textContent = user.name || 'User';
+
+            // Update initials
+            const userInitials = document.getElementById('userInitials');
+            const profileInitialsLarge = document.getElementById('profileInitialsLarge');
+
+            if (user.name) {
+                const initials = user.name
+                    .split(' ')
+                    .map(n => n[0])
+                    .join('')
+                    .toUpperCase()
+                    .slice(0, 2);
+
+                if (userInitials) userInitials.textContent = initials;
+                if (profileInitialsLarge) profileInitialsLarge.textContent = initials;
+            }
+
+            // Update profile image if exists
+            if (user.profileImage) {
+                const headerImg = document.getElementById('userProfileImage');
+                const headerInitials = document.getElementById('userInitials');
+
+                if (headerImg && headerInitials) {
+                    headerImg.src = user.profileImage;
+                    headerImg.style.display = 'block';
+                    headerInitials.style.display = 'none';
+                }
+            }
+        }
+    }
+
+    /**
+     * Logout
+     */
+    async logout() {
+        if (confirm('Are you sure you want to sign out?')) {
+            try {
+                if (typeof authManager !== 'undefined') {
+                    await authManager.logout();
+                }
+                this.showNotification('Signed out successfully', 'success');
+            } catch (error) {
+                console.error('Logout failed:', error);
+                this.showNotification('Failed to sign out', 'danger');
+            }
         }
     }
 
@@ -748,7 +1050,7 @@ class FinanceProApp {
                 headerBalance.textContent = formatted;
 
                 // Add positive/negative class for styling
-                headerBalance.className = `stat-value ${balance >= 0 ? 'positive' : 'negative'}`;
+                headerBalance.className = `balance-value ${balance >= 0 ? 'positive' : 'negative'}`;
             }
         } catch (error) {
             console.error('Failed to update header balance:', error);
